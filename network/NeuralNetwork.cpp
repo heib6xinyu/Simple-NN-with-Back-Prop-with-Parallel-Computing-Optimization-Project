@@ -12,7 +12,7 @@ NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenL
     : lossFunction(lossFunc), numberWeights(0) {
     // The number of layers in the neural network is 2 plus the number of hidden layers
     int totalLayers = hiddenLayerSizes.size() + 2;
-    layers.reserve(numLayers);  
+    layers.reserve(numLayers);
 
     Log::info("Creating a neural network with " + std::to_string(hiddenLayerSizes.size()) + " hidden layers.");
 
@@ -50,7 +50,7 @@ NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenL
 
         layers.push_back(std::move(currentLayer));
     }
-
+}
 
 int NeuralNetwork::getNumberWeights() const {
     return numberWeights;

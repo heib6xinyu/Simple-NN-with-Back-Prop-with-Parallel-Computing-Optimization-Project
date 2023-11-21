@@ -17,7 +17,7 @@ private:
 
 public:
     NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenLayerSizes, int outputLayerSize, LossFunction lossFunc);
-    ~NeuralNetwork();
+   
 
     int getNumberWeights() const;
     void reset();
