@@ -2,7 +2,6 @@
 #define CONVERT_IRIS_H
 
 #include <string>
-#include "util/Logger.h"
 class ConvertIris {
 public:
     void run();

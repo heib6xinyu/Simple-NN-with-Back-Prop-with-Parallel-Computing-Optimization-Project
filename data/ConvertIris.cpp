@@ -4,7 +4,6 @@
 #include <vector>
 #include <sstream>
 
-#include "util/Logger.h"
 class ConvertIris {
 public:
     void run() {
@@ -13,18 +12,15 @@ public:
             std::ofstream bufferedWriter("./datasets/iris.txt");
 
             if (!bufferedReader.is_open()) {
-                Logger::fatal("ERROR opening iris.data file for reading.");
                 return;
             }
             if (!bufferedWriter.is_open()) {
-                Logger::fatal("ERROR opening iris.txt file for writing.");
                 return;
             }
 
             std::string readLine;
             // Read the file line by line
             while (std::getline(bufferedReader, readLine)) {
-                Logger::info(readLine);
 
                 // Skip empty lines or lines starting with '#'
                 if (readLine.empty() || readLine[0] == '#') {
@@ -61,14 +57,12 @@ public:
                 }
                 output += "\n";
 
-                Logger::info(output);
                 bufferedWriter.write(output.c_str(), output.size());
             }
             bufferedWriter.close();
             bufferedReader.close();
         }
         catch (const std::exception& e) {
-            Logger::fatal("ERROR converting iris data file");
             std::cerr << e.what() << '\n';
             return;
         }
