@@ -75,7 +75,7 @@ std::vector<double> NeuralNetwork::getWeights() const {
             position += nWeights;
 
             if (position > numberWeights) {
-                throw NeuralNetworkException("The numberWeights field of the NeuralNetwork was less than the actual number of weights and biases.");
+                throw std::runtime_error("The numberWeights field of the NeuralNetwork was less than the actual number of weights and biases.");
             }
         }
     }
@@ -85,7 +85,7 @@ std::vector<double> NeuralNetwork::getWeights() const {
 
 void NeuralNetwork::setWeights(const std::vector<double>& newWeights) {
     if (numberWeights != newWeights.size()) {
-        throw NeuralNetworkException("Could not setWeights because the number of new weights: " + std::to_string(newWeights.size()) + " was not equal to the number of weights in the NeuralNetwork: " + std::to_string(numberWeights));
+        throw std::runtime_error("Could not setWeights because the number of new weights: " + std::to_string(newWeights.size()) + " was not equal to the number of weights in the NeuralNetwork: " + std::to_string(numberWeights));
     }
 
     int position = 0;
@@ -95,7 +95,7 @@ void NeuralNetwork::setWeights(const std::vector<double>& newWeights) {
             position += nWeights;
 
             if (position > numberWeights) {
-                throw NeuralNetworkException("The numberWeights field of the NeuralNetwork was (" + std::to_string(numberWeights) + ") but when setting the weights there were more hidden nodes and edges than numberWeights. This should not happen unless numberWeights is not being updated correctly.");
+                throw std::runtime_error("The numberWeights field of the NeuralNetwork was (" + std::to_string(numberWeights) + ") but when setting the weights there were more hidden nodes and edges than numberWeights. This should not happen unless numberWeights is not being updated correctly.");
             }
         }
     }
@@ -111,7 +111,7 @@ std::vector<double> NeuralNetwork::getDeltas() const {
             position += nDeltas;
 
             if (position > numberWeights) {
-                throw NeuralNetworkException("The numberWeights field of the NeuralNetwork was (" + std::to_string(numberWeights) + ") but when getting the deltas there were more hidden nodes and edges than numberWeights. This should not happen unless numberWeights is not being updated correctly.");
+                throw std::runtime_error("The numberWeights field of the NeuralNetwork was (" + std::to_string(numberWeights) + ") but when getting the deltas there were more hidden nodes and edges than numberWeights. This should not happen unless numberWeights is not being updated correctly.");
             }
         }
     }
