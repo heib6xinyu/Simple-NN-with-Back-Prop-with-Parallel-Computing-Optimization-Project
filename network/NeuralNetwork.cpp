@@ -233,8 +233,211 @@ double NeuralNetwork::forwardPass(const Instance& instance) {
         }
         outputSum = loss;
     }
+    else if (lossFunction == LossFunction::SVM) {
+        // Implement SVM loss
+        int expectedIndex = static_cast<int>(expectedOutputs[0]);
+        double expectedOutput = layers.back()[expectedIndex].postActivationValue;
+        double deltaSum = 0.0;
+        double hingeLossSum = 0.0;
 
+        for (size_t number = 0; number < layers.back().size(); ++number) {
+            Node& outputNode = layers.back()[number];
+            if (number != expectedIndex) {
+                double hingeLoss = std::max(0.0, outputNode.postActivationValue - expectedOutput + 1);
+                hingeLossSum += hingeLoss;
+
+                if (hingeLoss > 0) {
+                    outputNode.delta = 1;
+                    deltaSum += 1;
+                }
+                else {
+                    outputNode.delta = 0;
+                }
+            }
+        }
+
+        // Adjust delta for the expected output node
+        Node& expectedNode = layers.back()[expectedIndex];
+        expectedNode.delta = -deltaSum;
+        outputSum = hingeLossSum;
+    }
+    else if (lossFunction == LossFunction::SOFTMAX) {
+        // Implement Softmax loss
+        int expectedIndex = static_cast<int>(instance.expectedOutputs[0]);
+        double totalExpSum = 0.0;
+        double expectedExp = 0.0;
+
+        // Calculate sum of exponentials for all outputs
+        for (Node& outputNode : layers.back()) {
+            double expValue = std::exp(outputNode.postActivationValue);
+            totalExpSum += expValue;
+            if (&outputNode == &layers.back()[expectedIndex]) {
+                expectedExp = expValue;
+            }
+        }
+
+        // Calculate softmax loss and delta for each output node
+        for (Node& outputNode : layers.back()) {
+            double softmaxProb = std::exp(outputNode.postActivationValue) / totalExpSum;
+            outputNode.delta = (outputNode == layers.back()[expectedIndex]) ? (softmaxProb - 1) : softmaxProb;
+        }
+
+        // Calculate the overall loss (negative log likelihood)
+        outputSum = -std::log(expectedExp / totalExpSum);
+    }
+    else {
+        throw std::runtime_error("Unsupported loss function in forward pass.");
     }
 
+
     return outputSum;
+}
+
+double NeuralNetwork::forwardPass(const std::vector<Instance>& instances) {
+    double totalSum = 0.0;
+
+    for (const Instance& instance : instances) {
+        totalSum += forwardPass(instance);
+    }
+
+    return totalSum;
+}
+
+double NeuralNetwork::calculateAccuracy(const std::vector<Instance>& instances) {
+    int correctCount = 0;
+    int totalCount = instances.size();
+
+    for (const Instance& instance : instances) {
+        forwardPass(instance);
+        std::vector<double> output = getOutputValues();
+
+        double maxOutput = -std::numeric_limits<double>::infinity();
+        int predictedIndex = -1;
+        for (size_t i = 0; i < output.size(); ++i) {
+            if (output[i] > maxOutput) {
+                maxOutput = output[i];
+                predictedIndex = static_cast<int>(i);
+            }
+        }
+
+        if (instance.expectedOutputs.size() > 0 && static_cast<int>(instance.expectedOutputs[0]) == predictedIndex) {
+            ++correctCount;
+        }
+    }
+
+    return static_cast<double>(correctCount) / static_cast<double>(totalCount);
+}
+
+std::vector<double> NeuralNetwork::getOutputValues() const {
+    if (layers.empty()) {
+        throw std::runtime_error("Neural network has no layers.");
+    }
+
+    const auto& outputLayer = layers.back();
+    std::vector<double> outputValues;
+    outputValues.reserve(outputLayer.size());
+
+    for (const Node& node : outputLayer) {
+        outputValues.push_back(node.postActivationValue);
+    }
+
+    return outputValues;
+}
+
+const double H = 0.0000001;
+
+std::vector<double> NeuralNetwork::getNumericGradient(const Instance& instance) {
+    std::vector<double> currentWeights = getWeights();
+    std::vector<double> testWeights = currentWeights;
+    std::vector<double> numericGradient(currentWeights.size(), 0.0);
+
+    for (size_t i = 0; i < currentWeights.size(); ++i) {
+        // Increment weight by H
+        testWeights[i] = currentWeights[i] + H;
+        setWeights(testWeights);
+        double outputPlusH = forwardPass(instance);
+
+        // Decrement weight by H
+        testWeights[i] = currentWeights[i] - H;
+        setWeights(testWeights);
+        double outputMinusH = forwardPass(instance);
+
+        // Calculate the gradient
+        numericGradient[i] = (outputPlusH - outputMinusH) / (2 * H);
+
+        // Reset the weight for the next iteration
+        testWeights[i] = currentWeights[i];
+    }
+
+    // Reset the weights to their original values
+    setWeights(currentWeights);
+
+    return numericGradient;
+}
+
+std::vector<double> NeuralNetwork::getNumericGradient(const std::vector<Instance>& instances) {
+    std::vector<double> currentWeights = getWeights();
+    std::vector<double> testWeights = currentWeights;
+    std::vector<double> numericGradient(currentWeights.size(), 0.0);
+
+    for (size_t i = 0; i < currentWeights.size(); ++i) {
+        double outputPlusH = 0.0;
+        double outputMinusH = 0.0;
+
+        // Increment weight by H
+        testWeights[i] = currentWeights[i] + H;
+        setWeights(testWeights);
+        for (const auto& instance : instances) {
+            outputPlusH += forwardPass(instance);
+        }
+
+        // Decrement weight by H
+        testWeights[i] = currentWeights[i] - H;
+        setWeights(testWeights);
+        for (const auto& instance : instances) {
+            outputMinusH += forwardPass(instance);
+        }
+
+        // Calculate the gradient
+        numericGradient[i] = (outputPlusH - outputMinusH) / (2 * H);
+
+        // Reset the weight for the next iteration
+        testWeights[i] = currentWeights[i];
+    }
+
+    // Reset the weights to their original values
+    setWeights(currentWeights);
+
+    return numericGradient;
+}
+
+void NeuralNetwork::backwardPass() {
+    // Propagate backward starting from the output layer to the input layer
+    for (int i = layers.size() - 1; i >= 0; --i) {
+        for (Node& node : layers[i]) {
+            node.propagateBackward();
+        }
+    }
+}
+
+// Gets the gradient of the neural network at its current weights for a given instance.
+std::vector<double> NeuralNetwork::getGradient(const Instance& instance) {
+    forwardPass(instance);
+    backwardPass();
+    return getDeltas();
+}
+
+// Gets the gradient of the neural network for a list of instances.
+std::vector<double> NeuralNetwork::getGradient(const std::vector<Instance>& instances) {
+    std::vector<double> gradientSum(numberWeights, 0.0);
+
+    // Accumulate the gradients for each instance
+    for (const auto& instance : instances) {
+        std::vector<double> singleGradient = getGradient(instance);
+        for (size_t i = 0; i < numberWeights; ++i) {
+            gradientSum[i] += singleGradient[i];
+        }
+    }
+
+    return gradientSum;
 }
