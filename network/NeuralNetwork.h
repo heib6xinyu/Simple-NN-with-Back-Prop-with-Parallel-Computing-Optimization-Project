@@ -6,7 +6,6 @@
 #include "Node.h"  // Make sure this path is correct
 #include "Edge.h"  // Make sure this path is correct
 #include "LossFunction.h"  // Enum or class needs to be defined
-#include "NeuralNetworkException.h"  // Custom exception class needs to be defined
 #include "data/Instance.h" // Forward declare Instance if it's a class
 
 class NeuralNetwork {
