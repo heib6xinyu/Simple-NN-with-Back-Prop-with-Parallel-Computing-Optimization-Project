@@ -7,13 +7,14 @@
 #include "./data/Instance.h"
 #include "./network/NeuralNetwork.h"
 #include "./network/LossFunction.h"
-#include "Vector.h"
+#include "./util/Vector.h"
+#include "Log.h"
 
 
 void testLoadingXOR() {
     bool passed = true;
 
-    LogInfo("Loading the xor.txt file as a DataSet.");
+    Log::info("Loading the xor.txt file as a DataSet.");
     try {
         DataSet xorData = DataSet("xor data", "./datasets/xor.txt");
 
@@ -21,90 +22,90 @@ void testLoadingXOR() {
         //make sure the 4 different instances from XOR were read correctly
         Instance i0 = xorData.getInstance(0);
         if (!i0.equals(std::vector<double>{0}, std::vector<double>{0, 0})) {
-            LogError("testLoadingXOR was not correct on getInstance 0.");
-            LogError("\tinstance was:     " + i0.toString());
-            LogError("\tshould have been: [0 : 0, 0]");
+            Log::error("testLoadingXOR was not correct on getInstance 0.");
+            Log::error("\tinstance was:     " + i0.toString());
+            Log::error("\tshould have been: [0 : 0, 0]");
             passed = false;
         } else {
-            LogTrace("testLoadingXOR passed getInstance 0.");
+            Log::trace("testLoadingXOR passed getInstance 0.");
         }
 
         Instance i1 = xorData.getInstance(1);
         if (!i1.equals(std::vector<double>{1}, std::vector<double>{1, 0})) {
-            LogError("testLoadingXOR was not correct on getInstance 1.");
-            LogError("\tinstance was:     " + i1.toString());
-            LogError("\tshould have been: [1 : 1, 0]");
+            Log::error("testLoadingXOR was not correct on getInstance 1.");
+            Log::error("\tinstance was:     " + i1.toString());
+            Log::error("\tshould have been: [1 : 1, 0]");
             passed = false;
         } else {
-            LogTrace("testLoadingXOR passed getInstance 1.");
+            Log::trace("testLoadingXOR passed getInstance 1.");
         }
 
         Instance i2 = xorData.getInstance(2);
         if (!i2.equals(std::vector<double>{1}, std::vector<double>{0, 1})) {
-            LogError("testLoadingXOR was not correct on getInstance 2.");
-            LogError("\tinstance was:     " + i2.toString());
-            LogError("\tshould have been: [1 : 0, 1]");
+            Log::error("testLoadingXOR was not correct on getInstance 2.");
+            Log::error("\tinstance was:     " + i2.toString());
+            Log::error("\tshould have been: [1 : 0, 1]");
             passed = false;
         } else {
-            LogTrace("testLoadingXOR passed getInstance 2.");
+            Log::trace("testLoadingXOR passed getInstance 2.");
         }
 
         Instance i3 = xorData.getInstance(3);
         if (!i3.equals(std::vector<double>{0}, std::vector<double>{1, 1})) {
-            LogError("testLoadingXOR was not correct on getInstance 3.");
-            LogError("\tinstance was:     " + i3.toString());
-            LogError("\tshould have been: [0 : 1, 1]");
+            Log::error("testLoadingXOR was not correct on getInstance 3.");
+            Log::error("\tinstance was:     " + i3.toString());
+            Log::error("\tshould have been: [0 : 1, 1]");
             passed = false;
         } else {
-            LogTrace("testLoadingXOR passed getInstance 3.");
+            Log::trace("testLoadingXOR passed getInstance 3.");
         }
 
         //Gets all instances as once to test the getInstances Method
         std::vector<Instance> is = xorData.getInstances(0,4);
         if (!is[0].equals(std::vector<double>{0}, std::vector<double>{0, 0})) {
-            LogError("testLoadingXOR was not correct on getInstances 0.");
-            LogError("\tinstance was:     " + i0.toString());
-            LogError("\tshould have been: [0 : 0, 0]");
+            Log::error("testLoadingXOR was not correct on getInstances 0.");
+            Log::error("\tinstance was:     " + i0.toString());
+            Log::error("\tshould have been: [0 : 0, 0]");
             passed = false;
         } else {
-            LogTrace("testLoadingXOR passed getInstances 0.");
+            Log::trace("testLoadingXOR passed getInstances 0.");
         }
 
         if (!is[1].equals(std::vector<double>{1}, std::vector<double>{1, 0})) {
-            LogError("testLoadingXOR was not correct on getInstances 1.");
-            LogError("\tinstance was:     " + i1.toString());
-            LogError("\tshould have been: [0 : 1 , 0]");
+            Log::error("testLoadingXOR was not correct on getInstances 1.");
+            Log::error("\tinstance was:     " + i1.toString());
+            Log::error("\tshould have been: [0 : 1 , 0]");
             passed = false;
         } else {
-            LogTrace("testLoadingXOR passed getInstances 1.");
+            Log::trace("testLoadingXOR passed getInstances 1.");
         }
 
         if (!is[2].equals(std::vector<double>{1}, std::vector<double>{0, 1})) {
-            LogError("testLoadingXOR was not correct on getInstances 2.");
-            LogError("\tinstance was:     " + i2.toString());
-            LogError("\tshould have been: [1 : 0, 1]");
+            Log::error("testLoadingXOR was not correct on getInstances 2.");
+            Log::error("\tinstance was:     " + i2.toString());
+            Log::error("\tshould have been: [1 : 0, 1]");
             passed = false;
         } else {
-            LogTrace("testLoadingXOR passed getInstances 2.");
+            Log::trace("testLoadingXOR passed getInstances 2.");
            }
 
         if (!is[3].equals(std::vector<double>{0}, std::vector<double>{1, 1})) {
-            LogError("testLoadingXOR was not correct on getInstances 3.");
-            LogError("\tinstance was:     " + i3.toString());
-            LogError("\tshould have been: [0 : 1, 1]");
+            Log::error("testLoadingXOR was not correct on getInstances 3.");
+            Log::error("\tinstance was:     " + i3.toString());
+            Log::error("\tshould have been: [0 : 1, 1]");
             passed = false;
         } else {
-            LogTrace("testLoadingXOR passed getInstances 3.");
+            Log::trace("testLoadingXOR passed getInstances 3.");
         }
     } catch (std::exception e) {
-        LogFatal("Exception occurred in testLoadingXOR: " + (std::string) e.what());
+        Log::fatal("Exception occurred in testLoadingXOR: " + (std::string) e.what());
         passed = false;
     }
 
     if (passed) {
-        LogInfo("Passed testLoadingXOR.");
+        Log::info("Passed testLoadingXOR.");
     } else {
-        LogFatal("FAILED testLoadingXOR!");
+        Log::fatal("FAILED testLoadingXOR!");
     }
 }
 
@@ -133,10 +134,10 @@ void testXORNeuralNetwork() {
         //same order as the weights we set
         checkGetSetWeights(xorNeuralNetwork1, "xorNeuralNetwork1");
 
-        LogInfo("Passed testXORNeuralNetwork 1");
+        Log::info("Passed testXORNeuralNetwork 1");
     } catch (std::exception e) {
-        LogFatal("Failed testXORNeuralNetwork on Neural Network 1");
-        LogFatal("Threw exception: " + (std::string) e.what());
+        Log::fatal("Failed testXORNeuralNetwork on Neural Network 1");
+        Log::fatal("Threw exception: " + (std::string) e.what());
         passed = false;
     }
 
@@ -163,10 +164,10 @@ void testXORNeuralNetwork() {
         //same order as the weights we set
         checkGetSetWeights(xorNeuralNetwork2, "xorNeuralNetwork2");
 
-        LogInfo("Passed testXORNeuralNetwork 2");
+        Log::info("Passed testXORNeuralNetwork 2");
     } catch (std::exception e) {
-        LogFatal("Failed testXORNeuralNetwork on Neural Network 2");
-        LogFatal("Threw exception: " + (std::string) e.what());
+        Log::fatal("Failed testXORNeuralNetwork on Neural Network 2");
+        Log::fatal("Threw exception: " + (std::string) e.what());
         passed = false;
     }
 
@@ -195,17 +196,17 @@ void testXORNeuralNetwork() {
         //same order as the weights we set
         checkGetSetWeights(xorNeuralNetwork3, "xorNeuralNetwork3");
 
-        LogInfo("Passed testXORNeuralNetwork 3");
+        Log::info("Passed testXORNeuralNetwork 3");
     } catch (std::exception e) {
-        LogFatal("Failed testXORNeuralNetwork on Neural Network 3");
-        LogFatal("Threw exception: " + (std::string) e.what());
+        Log::fatal("Failed testXORNeuralNetwork on Neural Network 3");
+        Log::fatal("Threw exception: " + (std::string) e.what());
         passed = false;
     }
 
     if (passed) {
-        LogInfo("Passed testXORNeuralNetwork.");
+        Log::info("Passed testXORNeuralNetwork.");
     } else {
-        LogFatal("FAILED testXORNeuralNetwork!");
+        Log::fatal("FAILED testXORNeuralNetwork!");
     }
 }
 
@@ -226,26 +227,26 @@ bool gradientsCloseEnough(std::vector<double> g1, std::vector<double> g2) {
     double relativeError = Vector::norm(Vector::subtractVector(g1, g2)) / std::max(Vector::norm(g1), Vector::norm(g2));
     
     if (relativeError >= 1e-4) {
-        LogError("relativeError bad: " + std::to_string(relativeError));
+        Log::error("relativeError bad: " + std::to_string(relativeError));
         for (int i = 0; i < g1.size(); ++i) {
-            LogError("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
+            Log::error("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
         }
     } else if (relativeError >= 1e-5) {
-        LogWarning("relativeError probably bad: " + std::to_string(relativeError));
+        Log::warning("relativeError probably bad: " + std::to_string(relativeError));
         for (int i = 0; i < g1.size(); ++i) {
-            LogTrace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
+            Log::trace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
         }
     } else if (relativeError >= 1e-7) {
-        LogDebug("relativeError might be bad: " + std::to_string(relativeError));
+        Log::debug("relativeError might be bad: " + std::to_string(relativeError));
         for (int i = 0; i < g1.size(); ++i) {
-            LogTrace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
+            Log::trace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
         }
     }
     return relativeError <= 1e-5;
 }
 
 void checkGetSetWeights(NeuralNetwork network, std::string networkName) {
-    LogDebug("Testing get/set weights on neural network '" + networkName + "'");
+    Log::debug("Testing get/set weights on neural network '" + networkName + "'");
     int numberWeights = network.getNumberWeights();
     std::vector<double> testWeights(numberWeights);
     for (int i = 0; i < numberWeights; ++i) {
@@ -258,37 +259,13 @@ void checkGetSetWeights(NeuralNetwork network, std::string networkName) {
 
     bool passed = true;
     for (int i = 0; i < numberWeights; ++i) {
-        LogTrace("testWeights[" + std::to_string(i) + "]: " + std::to_string(testWeights[i]) 
+        Log::trace("testWeights[" + std::to_string(i) + "]: " + std::to_string(testWeights[i]) 
             + ", testWeights2[" + std::to_string(i) + "]: " + std::to_string(testWeights2[i]));
         if (testWeights[i] != testWeights2[i]) {
             throw std::runtime_error("Failed getSetWeights test on " + networkName + ", testWeights[" + std::to_string(i) + "] was " 
                 + std::to_string(testWeights[i]) + " and testWeights2[" + std::to_string(i) + "] was " + std::to_string(testWeights2[i]) + ".");
         }
     }
-}
-
-void LogError(std::string msg) {
-    printf("Error: %s", msg.c_str());
-}
-
-void LogWarning(std::string msg) {
-    printf("Warning: %s", msg.c_str());
-}
-
-void LogDebug(std::string msg) {
-    printf("Debug: %s", msg.c_str());
-}
-
-void LogTrace(std::string msg) {
-    printf("Trace: %s", msg.c_str());
-}
-
-void LogInfo(std::string msg) {
-    printf("Info: %s", msg.c_str());
-}
-
-void LogFatal(std::string msg) {
-    printf("Fatal: %s", msg.c_str());
 }
 
 int main(int argc, char* argv[]) {
