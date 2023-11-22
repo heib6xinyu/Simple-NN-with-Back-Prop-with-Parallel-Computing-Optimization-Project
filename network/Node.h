@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "ActivationType.h"
 
 // Forward declaration of Edge class to avoid circular dependencies
 class Edge;
@@ -22,13 +23,8 @@ enum class NodeType {
 
 class Node {
 private:
-    int layer;
-    int number;
     NodeType nodeType;
     ActivationType activationType;
-    double preActivationValue;
-    double postActivationValue;
-    double delta;
     double activationDerivative;
     double bias;
     double biasDelta;
@@ -63,6 +59,9 @@ public:
     int getWeights(int position, std::vector<double>& weights);
     int getDeltas(int position, std::vector<double>& deltas);
     int setWeights(int position, const std::vector<double>& weights);
+    void setBias(double bias);
+
+    std::vector<Edge*> getInputEdges(); 
 
     // Initialization of weights and bias
     void initializeWeightsAndBias(double newBias);
@@ -70,6 +69,12 @@ public:
     // Utility methods for printing node details
     std::string toString() const;
     std::string toDetailedString() const;
+
+    int layer;
+    int number;
+    double delta;
+    double postActivationValue;
+    double preActivationValue;
 };
 
 #endif // NODE_H

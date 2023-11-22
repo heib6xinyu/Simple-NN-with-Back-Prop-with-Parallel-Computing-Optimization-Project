@@ -1,4 +1,3 @@
-#include "Node.h"
 #include <cmath>
 #include <stdexcept>
 #include <vector>
@@ -6,6 +5,8 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
+#include "Edge.h"
+#include "Node.h"
 
 // Node constructor implementation
 Node::Node(int layerValue, int numberValue, NodeType type, ActivationType actType)
@@ -17,12 +18,12 @@ Node::Node(int layerValue, int numberValue, NodeType type, ActivationType actTyp
 
 // Destructor to clean up the edges
 Node::~Node() {
-    for (auto* edge : inputEdges) {
+    for (Edge* edge : inputEdges) {
         delete edge;
     }
     inputEdges.clear();
 
-    for (auto* edge : outputEdges) {
+    for (Edge* edge : outputEdges) {
         delete edge;
     }
     outputEdges.clear();
@@ -59,7 +60,7 @@ void Node::addIncomingEdge(Edge* incomingEdge) {
 void Node::propagateForward() {
     preActivationValue += bias;
     for (Edge* edge : inputEdges) {
-        preActivationValue += edge->weight * edge->startNode->postActivationValue;
+        preActivationValue += edge->weight * edge->inputNode->postActivationValue;
     }
 
     switch (activationType) {
@@ -92,15 +93,6 @@ void Node::applyTanh() {
     activationDerivative = 1 - postActivationValue * postActivationValue;
 }
 
-void Node::propagateBackward() {
-    double sum = 0;
-    for (Edge* edge : outputEdges) {
-        sum += edge->weight * edge->endNode->delta;
-    }
-
-    delta = sum * activationDerivative;
-}
-
 int Node::getWeights(int position, std::vector<double>& weights) {
     int weightCount = 0;
 
@@ -110,8 +102,8 @@ int Node::getWeights(int position, std::vector<double>& weights) {
         weightCount = 1;
     }
 
-    for (auto* edge : outputEdges) {
-        weights[position + weightCount] = edge->getWeight();
+    for (Edge* edge : outputEdges) {
+        weights[position + weightCount] = edge->weight;
         weightCount++;
     }
 
@@ -127,8 +119,8 @@ int Node::getDeltas(int position, std::vector<double>& deltas) {
         deltaCount = 1;
     }
 
-    for (auto* edge : outputEdges) {
-        deltas[position + deltaCount] = edge->getWeightDelta();
+    for (Edge* edge : outputEdges) {
+        deltas[position + deltaCount] = edge->weightDelta;
         deltaCount++;
     }
 
@@ -144,7 +136,7 @@ int Node::setWeights(int position, const std::vector<double>& weights) {
         weightCount = 1;
     }
 
-    for (auto* edge : outputEdges) {
+    for (Edge* edge : outputEdges) {
         edge->setWeight(weights[position + weightCount]);
         weightCount++;
     }
@@ -171,7 +163,7 @@ void Node::propagateBackward() {
     biasDelta += deltaPushBack;
 
     // Call propagateBackward for all incomingEdges
-    for (auto* edge : inputEdges) {
+    for (Edge* edge : inputEdges) {
         edge->propagateBackward(deltaPushBack);
     }
 }
@@ -182,25 +174,32 @@ void Node::initializeWeightsAndBias(double newBias) {
     std::default_random_engine generator;
     std::normal_distribution<double> distribution(0.0, 1.0);
 
-    for (auto* edge : inputEdges) {
+    for (Edge* edge : inputEdges) {
         edge->setWeight(distribution(generator) / std::sqrt(N));
     }
 }
 
+std::vector<Edge*> Node::getInputEdges() {
+    return inputEdges;
+}
+
+void Node::setBias(double new_bias){
+    bias = new_bias;
+}
+
 std::string Node::toString() const {
-    std::stringstream ss;
-    ss << "[Node - layer: " << layer << ", number: " << number << ", type: "
-        << static_cast<int>(nodeType) << "]";
-    return ss.str();
+    std::string ss = "[Node - layer: " + std::to_string(layer) + ", number: " + std::to_string(number) + ", type: "
+        + std::to_string(static_cast<int>(nodeType)) + "]";
+    return ss;
 }
 
 std::string Node::toDetailedString() const {
-    std::stringstream ss;
-    ss << "[Node - layer: " << layer << ", number: " << number << ", node type: "
-        << static_cast<int>(nodeType) << ", activation type: "
-        << static_cast<int>(activationType) << ", n input edges: "
-        << inputEdges.size() << ", n output edges: " << outputEdges.size()
-        << ", pre value: " << preActivationValue << ", post value: "
-        << postActivationValue << ", delta: " << delta << "]";
-    return ss.str();
+    //std::stringstream ss;
+    std::string ss = "[Node - layer: " + std::to_string(layer) + ", number: " + std::to_string(number) + ", node type: "
+        + std::to_string(static_cast<int>(nodeType)) + ", activation type: "
+        + std::to_string(static_cast<int>(activationType)) + ", n input edges: "
+        + std::to_string(inputEdges.size()) + ", n output edges: " + std::to_string(outputEdges.size())
+        + ", pre value: " + std::to_string(preActivationValue) + ", post value: "
+        + std::to_string(postActivationValue) + ", delta: " + std::to_string(delta) + "]";
+    return ss;
 }

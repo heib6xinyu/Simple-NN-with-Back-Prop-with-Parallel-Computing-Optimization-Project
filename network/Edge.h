@@ -14,6 +14,7 @@ public:
 
     void propagateBackward(double delta);
     bool equals(const Edge& other) const;
+    void setWeight(double weight);
 };
 
 #endif // EDGE_H

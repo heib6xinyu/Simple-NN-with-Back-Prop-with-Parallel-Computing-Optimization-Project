@@ -1,7 +1,7 @@
 #include "NeuralNetwork.h"
 #include "Node.h"  
-#include "util/Log.h"
-#include "data/Instance.h"
+#include "../util/Log.h"
+#include "../data/Instance.h"
 #include "LossFunction.h"
 #include <vector>
 #include <string>
@@ -12,7 +12,7 @@ NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenL
     : lossFunction(lossFunc), numberWeights(0) {
     // The number of layers in the neural network is 2 plus the number of hidden layers
     int totalLayers = hiddenLayerSizes.size() + 2;
-    layers.reserve(numLayers);
+    layers.reserve(totalLayers);
 
     Log::info("Creating a neural network with " + std::to_string(hiddenLayerSizes.size()) + " hidden layers.");
 
@@ -70,7 +70,7 @@ std::vector<double> NeuralNetwork::getWeights() const {
 
     int position = 0;
     for (const auto& layer : layers) {
-        for (const auto& node : layer) {
+        for (Node node : layer) {
             int nWeights = node.getWeights(position, weights);
             position += nWeights;
 
@@ -106,7 +106,7 @@ std::vector<double> NeuralNetwork::getDeltas() const {
 
     int position = 0;
     for (const auto& layer : layers) {
-        for (const auto& node : layer) {
+        for (Node node : layer) {
             int nDeltas = node.getDeltas(position, deltas);
             position += nDeltas;
 
@@ -123,9 +123,9 @@ void NeuralNetwork::connectFully() {
     for (size_t layer = 0; layer < layers.size() - 1; ++layer) {
         for (Node& inputNode : layers[layer]) {
             for (Node& outputNode : layers[layer + 1]) {
-                Edge* newEdge = new Edge(&inputNode, &outputNode);
-                inputNode.addOutgoingEdge(newEdge);
-                outputNode.addIncomingEdge(newEdge);
+                Edge newEdge = Edge(&inputNode, &outputNode);
+                inputNode.addOutgoingEdge(&newEdge);
+                outputNode.addIncomingEdge(&newEdge);
                 ++numberWeights;
             }
         }
@@ -143,9 +143,9 @@ void NeuralNetwork::connectNodes(int inputLayer, int inputNumber, int outputLaye
 
     Node* inputNode = &layers[inputLayer][inputNumber];
     Node* outputNode = &layers[outputLayer][outputNumber];
-    Edge* newEdge = new Edge(inputNode, outputNode);
-    inputNode->addOutgoingEdge(newEdge);
-    outputNode->addIncomingEdge(newEdge);
+    Edge newEdge = Edge(inputNode, outputNode);
+    inputNode->addOutgoingEdge(&newEdge);
+    outputNode->addIncomingEdge(&newEdge);
     ++numberWeights;
     Log::trace("Number of weights now: " + std::to_string(numberWeights));
 }
@@ -155,7 +155,7 @@ void NeuralNetwork::initializeRandomly(double bias) {
     std::normal_distribution<double> distribution(0.0, 1.0);
 
     for (auto& layer : layers) {
-        for (Node& node : layer) {
+        for (Node node : layer) {
             double fanIn = node.getInputEdges().size();
             double variance = fanIn > 0 ? 1.0 / std::sqrt(fanIn) : 1.0;
 
@@ -190,7 +190,7 @@ double NeuralNetwork::forwardPass(const Instance& instance) {
 
     // The output layer calculations
     int outputLayerIndex = layers.size() - 1;
-    const std::vector<Node>& outputLayer = layers[outputLayerIndex];
+    const std::vector<Node> outputLayer = layers[outputLayerIndex];
     const std::vector<double>& expectedOutputs = instance.expectedOutputs;
 
     double outputSum = 0;
@@ -203,7 +203,7 @@ double NeuralNetwork::forwardPass(const Instance& instance) {
     else if (lossFunction == LossFunction::L1_NORM) {
         // Iterate over the output nodes to calculate the L1 loss and the deltas
         for (size_t number = 0; number < outputLayer.size(); ++number) {
-            Node& outputNode = outputLayer[number];
+            Node outputNode = outputLayer[number];
             double error = expectedOutputs[number] - outputNode.postActivationValue;
             outputSum += std::abs(error);
             // Set the delta for the output node
@@ -279,7 +279,7 @@ double NeuralNetwork::forwardPass(const Instance& instance) {
         // Calculate softmax loss and delta for each output node
         for (Node& outputNode : layers.back()) {
             double softmaxProb = std::exp(outputNode.postActivationValue) / totalExpSum;
-            outputNode.delta = (outputNode == layers.back()[expectedIndex]) ? (softmaxProb - 1) : softmaxProb;
+            outputNode.delta = ((&outputNode) == (&layers.back()[expectedIndex])) ? (softmaxProb - 1) : softmaxProb;
         }
 
         // Calculate the overall loss (negative log likelihood)

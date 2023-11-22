@@ -6,8 +6,8 @@
 
 class Instance {
 public:
-    const std::vector<double> expectedOutputs;
-    const std::vector<double> inputs;
+    std::vector<double> expectedOutputs;
+    std::vector<double> inputs;
 
     // Constructor declaration
     Instance(const std::vector<double>& expectedOutputs, const std::vector<double>& inputs);

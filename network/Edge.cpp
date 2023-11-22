@@ -1,5 +1,5 @@
 #include "Edge.h"
-#include "util/Log.h" 
+#include "../util/Log.h" 
 #include <iostream>
 
 Edge::Edge(Node* inputNode, Node* outputNode) {
@@ -28,6 +28,10 @@ void Edge::propagateBackward(double delta) {
     inputNode->delta += weight * delta;
 
     // std::cout << "Edge with output node[layer " << outputNode->layer << ", number " << outputNode->number << "] and input node[layer " << inputNode->layer << ", number " << inputNode->number <<"] backpropagating weightDelta: " << weightDelta << std::endl;
+}
+
+void Edge::setWeight(double new_weight) {
+    weight = new_weight;
 }
 
 bool Edge::equals(const Edge& other) const {

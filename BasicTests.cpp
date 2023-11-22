@@ -8,16 +8,71 @@
 #include "./network/NeuralNetwork.h"
 #include "./network/LossFunction.h"
 #include "./util/Vector.h"
-#include "Log.h"
+#include "./util/Log.h"
 
+bool closeEnough(double n1, double n2) {
+    return abs(n1-n2) < 2e-6;
+}
+
+bool vectorsCloseEnough(std::vector<double> v1, std::vector<double> v2) {
+    for (size_t i = 0; i < v1.size(); ++i) {
+        if (!closeEnough(v1[i], v2[i])) { 
+            return false;
+        }
+    }
+    return true;
+}
+
+bool gradientsCloseEnough(std::vector<double> g1, std::vector<double> g2) {
+    double relativeError = Vector::norm(Vector::subtractVector(g1, g2)) / std::max(Vector::norm(g1), Vector::norm(g2));
+    
+    if (relativeError >= 1e-4) {
+        Log::error("relativeError bad: " + std::to_string(relativeError));
+        for (int i = 0; i < g1.size(); ++i) {
+            Log::error("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
+        }
+    } else if (relativeError >= 1e-5) {
+        Log::warning("relativeError probably bad: " + std::to_string(relativeError));
+        for (int i = 0; i < g1.size(); ++i) {
+            Log::trace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
+        }
+    } else if (relativeError >= 1e-7) {
+        Log::debug("relativeError might be bad: " + std::to_string(relativeError));
+        for (int i = 0; i < g1.size(); ++i) {
+            Log::trace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
+        }
+    }
+    return relativeError <= 1e-5;
+}
+
+void checkGetSetWeights(NeuralNetwork network, std::string networkName) {
+    Log::debug("Testing get/set weights on neural network '" + networkName + "'");
+    int numberWeights = network.getNumberWeights();
+    std::vector<double> testWeights(numberWeights);
+    for (int i = 0; i < numberWeights; ++i) {
+        testWeights[i] = (double) i;
+    }
+
+    network.setWeights(testWeights);
+
+    std::vector<double> testWeights2 = network.getWeights();
+
+    bool passed = true;
+    for (int i = 0; i < numberWeights; ++i) {
+        Log::trace("testWeights[" + std::to_string(i) + "]: " + std::to_string(testWeights[i]) 
+            + ", testWeights2[" + std::to_string(i) + "]: " + std::to_string(testWeights2[i]));
+        if (testWeights[i] != testWeights2[i]) {
+            throw std::runtime_error("Failed getSetWeights test on " + networkName + ", testWeights[" + std::to_string(i) + "] was " 
+                + std::to_string(testWeights[i]) + " and testWeights2[" + std::to_string(i) + "] was " + std::to_string(testWeights2[i]) + ".");
+        }
+    }
+}
 
 void testLoadingXOR() {
     bool passed = true;
-
     Log::info("Loading the xor.txt file as a DataSet.");
     try {
         DataSet xorData = DataSet("xor data", "./datasets/xor.txt");
-
         //Test getting each instance individually
         //make sure the 4 different instances from XOR were read correctly
         Instance i0 = xorData.getInstance(0);
@@ -98,6 +153,7 @@ void testLoadingXOR() {
             Log::trace("testLoadingXOR passed getInstances 3.");
         }
     } catch (std::exception e) {
+        printf("Here!\n");
         Log::fatal("Exception occurred in testLoadingXOR: " + (std::string) e.what());
         passed = false;
     }
@@ -207,64 +263,6 @@ void testXORNeuralNetwork() {
         Log::info("Passed testXORNeuralNetwork.");
     } else {
         Log::fatal("FAILED testXORNeuralNetwork!");
-    }
-}
-
-bool closeEnough(double n1, double n2) {
-    return abs(n1-n2) < 2e-6;
-}
-
-bool vectorsCloseEnough(std::vector<double> v1, std::vector<double> v2) {
-    for (size_t i = 0; i < v1.size(); ++i) {
-        if (!closeEnough(v1[i], v2[i])) { 
-            return false;
-        }
-    }
-    return true;
-}
-
-bool gradientsCloseEnough(std::vector<double> g1, std::vector<double> g2) {
-    double relativeError = Vector::norm(Vector::subtractVector(g1, g2)) / std::max(Vector::norm(g1), Vector::norm(g2));
-    
-    if (relativeError >= 1e-4) {
-        Log::error("relativeError bad: " + std::to_string(relativeError));
-        for (int i = 0; i < g1.size(); ++i) {
-            Log::error("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
-        }
-    } else if (relativeError >= 1e-5) {
-        Log::warning("relativeError probably bad: " + std::to_string(relativeError));
-        for (int i = 0; i < g1.size(); ++i) {
-            Log::trace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
-        }
-    } else if (relativeError >= 1e-7) {
-        Log::debug("relativeError might be bad: " + std::to_string(relativeError));
-        for (int i = 0; i < g1.size(); ++i) {
-            Log::trace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
-        }
-    }
-    return relativeError <= 1e-5;
-}
-
-void checkGetSetWeights(NeuralNetwork network, std::string networkName) {
-    Log::debug("Testing get/set weights on neural network '" + networkName + "'");
-    int numberWeights = network.getNumberWeights();
-    std::vector<double> testWeights(numberWeights);
-    for (int i = 0; i < numberWeights; ++i) {
-        testWeights[i] = (double) i;
-    }
-
-    network.setWeights(testWeights);
-
-    std::vector<double> testWeights2 = network.getWeights();
-
-    bool passed = true;
-    for (int i = 0; i < numberWeights; ++i) {
-        Log::trace("testWeights[" + std::to_string(i) + "]: " + std::to_string(testWeights[i]) 
-            + ", testWeights2[" + std::to_string(i) + "]: " + std::to_string(testWeights2[i]));
-        if (testWeights[i] != testWeights2[i]) {
-            throw std::runtime_error("Failed getSetWeights test on " + networkName + ", testWeights[" + std::to_string(i) + "] was " 
-                + std::to_string(testWeights[i]) + " and testWeights2[" + std::to_string(i) + "] was " + std::to_string(testWeights2[i]) + ".");
-        }
     }
 }
 

@@ -13,7 +13,7 @@ public:
     static void fatal(const std::string& message);
     static void error(const std::string& message);
     static void warning(const std::string& message);
-    static void info(const std::string& message);
+    static void info(std::string message);
     static void debug(const std::string& message);
     static void trace(const std::string& message);
 

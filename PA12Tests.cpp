@@ -12,7 +12,7 @@
 #include "./network/LossFunction.h"
 #include "./util/Vector.h"
 #include "./util/Log.h"
-#include "NeuralNetwork.h"
+#include "./network/NeuralNetwork.h"
 #include "./data/Instance.h"
 #include "BasicTests.cpp"
 #include "PA11Tests.cpp"
