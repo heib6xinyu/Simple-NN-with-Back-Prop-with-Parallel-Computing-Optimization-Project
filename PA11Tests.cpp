@@ -6,6 +6,7 @@
 #include "./data/DataSet.h"
 #include "./network/LossFunction.h"
 #include "./util/Vector.h"
+#include "./util/Log.h"
 #include "NeuralNetwork.h"
 #include "./data/Instance.h"
 #include "BasicTests.cpp"
