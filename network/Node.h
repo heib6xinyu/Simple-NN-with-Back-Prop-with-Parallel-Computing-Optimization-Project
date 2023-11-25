@@ -28,8 +28,8 @@ private:
     double activationDerivative;
     double bias;
     double biasDelta;
-    std::vector<Edge*> inputEdges;
-    std::vector<Edge*> outputEdges;
+    std::vector<Edge> inputEdges;
+    std::vector<Edge> outputEdges;
 
     // Helper methods for activation functions
     void applyLinear();
@@ -48,20 +48,20 @@ public:
     void reset();
 
     // Edge management
-    void addOutgoingEdge(Edge* outgoingEdge);
-    void addIncomingEdge(Edge* incomingEdge);
+    void addOutgoingEdge(Edge outgoingEdge);
+    void addIncomingEdge(Edge incomingEdge);
 
     // Propagation methods
     void propagateForward();
     void propagateBackward();
 
     // Weights and deltas management
-    int getWeights(int position, std::vector<double>& weights);
+    int getWeights(int position, std::vector<double>& weights) const;
     int getDeltas(int position, std::vector<double>& deltas);
-    int setWeights(int position, const std::vector<double>& weights);
+    int setWeights(int position, std::vector<double>& weights);
     void setBias(double bias);
 
-    std::vector<Edge*> getInputEdges(); 
+    std::vector<Edge> getInputEdges(); 
 
     // Initialization of weights and bias
     void initializeWeightsAndBias(double newBias);

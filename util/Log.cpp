@@ -1,11 +1,11 @@
 #include "Log.h"
 #include <iostream>
 
-Log::Level Log::logLevel = Log::INFO;  // Default level
+Log::Level Log::logLevel = Log::ALL;  // Default level
 
 void Log::setLevel(Log::Level newLevel) {
     logLevel = newLevel;
-    //std::cout << "Log level set to " << levelToString(newLevel) << std::endl;
+    printf("Log level set to %s\n", levelToString(newLevel).c_str());
 }
 
 void Log::fatal(const std::string& message) {

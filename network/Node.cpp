@@ -7,6 +7,7 @@
 #include <numeric>
 #include "Edge.h"
 #include "Node.h"
+#include "../util/Log.h"
 
 // Node constructor implementation
 Node::Node(int layerValue, int numberValue, NodeType type, ActivationType actType)
@@ -18,13 +19,13 @@ Node::Node(int layerValue, int numberValue, NodeType type, ActivationType actTyp
 
 // Destructor to clean up the edges
 Node::~Node() {
-    for (Edge* edge : inputEdges) {
-        delete edge;
+    for (Edge edge : inputEdges) {
+        delete &edge;
     }
     inputEdges.clear();
 
-    for (Edge* edge : outputEdges) {
-        delete edge;
+    for (Edge edge : outputEdges) {
+        delete &edge;
     }
     outputEdges.clear();
 }
@@ -34,23 +35,25 @@ void Node::reset() {
     postActivationValue = 0;
     delta = 0;
     biasDelta = 0;
-    for (Edge* edge : inputEdges) {
-        edge->weightDelta = 0;
+    for (Edge edge : inputEdges) {
+        edge.weightDelta = 0;
     }
 }
 
-void Node::addOutgoingEdge(Edge* outgoingEdge) {
-    if (outgoingEdge != nullptr) {
+void Node::addOutgoingEdge(Edge outgoingEdge) {
+    if (&outgoingEdge != nullptr) {
         outputEdges.push_back(outgoingEdge);
+        Log::trace("Node " + toString() + " added outgoing edge to Node " + outgoingEdge.outputNode->toString());
     }
     else {
         throw std::invalid_argument("Cannot add a null outgoing edge.");
     }
 }
 
-void Node::addIncomingEdge(Edge* incomingEdge) {
-    if (incomingEdge != nullptr) {
+void Node::addIncomingEdge(Edge incomingEdge) {
+    if (&incomingEdge != nullptr) {
         inputEdges.push_back(incomingEdge);
+        Log::trace("Node " + toString() + " added incoming edge to Node " + incomingEdge.outputNode->toString());
     }
     else {
         throw std::invalid_argument("Cannot add a null incoming edge.");
@@ -59,8 +62,8 @@ void Node::addIncomingEdge(Edge* incomingEdge) {
 
 void Node::propagateForward() {
     preActivationValue += bias;
-    for (Edge* edge : inputEdges) {
-        preActivationValue += edge->weight * edge->inputNode->postActivationValue;
+    for (Edge edge : inputEdges) {
+        preActivationValue += edge.getWeight() * edge.inputNode->postActivationValue;
     }
 
     switch (activationType) {
@@ -93,7 +96,8 @@ void Node::applyTanh() {
     activationDerivative = 1 - postActivationValue * postActivationValue;
 }
 
-int Node::getWeights(int position, std::vector<double>& weights) {
+int Node::getWeights(int position, std::vector<double>& weights) const {
+    printf("ZZZZ\n");
     int weightCount = 0;
 
     // The first weight set will be the bias if it is a hidden node
@@ -102,11 +106,12 @@ int Node::getWeights(int position, std::vector<double>& weights) {
         weightCount = 1;
     }
 
-    for (Edge* edge : outputEdges) {
-        weights[position + weightCount] = edge->weight;
+    for (Edge edge : outputEdges) {
+        printf("A: %lf\n", edge.weight);
+        weights[position + weightCount] = edge.weight;
         weightCount++;
     }
-
+    
     return weightCount;
 }
 
@@ -119,15 +124,15 @@ int Node::getDeltas(int position, std::vector<double>& deltas) {
         deltaCount = 1;
     }
 
-    for (Edge* edge : outputEdges) {
-        deltas[position + deltaCount] = edge->weightDelta;
+    for (Edge edge : outputEdges) {
+        deltas[position + deltaCount] = edge.weightDelta;
         deltaCount++;
     }
 
     return deltaCount;
 }
 
-int Node::setWeights(int position, const std::vector<double>& weights) {
+int Node::setWeights(int position, std::vector<double>& weights) {
     int weightCount = 0;
 
     // The first weight set will be the bias if it is a hidden node
@@ -136,11 +141,20 @@ int Node::setWeights(int position, const std::vector<double>& weights) {
         weightCount = 1;
     }
 
-    for (Edge* edge : outputEdges) {
-        edge->setWeight(weights[position + weightCount]);
+    for (size_t i = 0; i < outputEdges.size(); ++i) {
+    //for (Edge edge : outputEdges) {
+        printf("Edge: %s\n", outputEdges[i].toString().c_str());
+        printf("Edge weight before: %lf\n", outputEdges[i].weight);
+        printf("Weight: %lf\n", weights[position + weightCount]);
+        outputEdges[i].weight = weights[position + weightCount];
+        //edge.weight = weights[position + weightCount];
+        printf("Edge weight after: %lf\n", outputEdges[i].weight);
         weightCount++;
     }
-
+    for (Edge edge : outputEdges) {
+        printf("Edge: %s\n", edge.toString().c_str());
+        printf("Edge weight after: %lf\n", edge.weight);
+    }
     return weightCount;
 }
 
@@ -163,8 +177,8 @@ void Node::propagateBackward() {
     biasDelta += deltaPushBack;
 
     // Call propagateBackward for all incomingEdges
-    for (Edge* edge : inputEdges) {
-        edge->propagateBackward(deltaPushBack);
+    for (Edge edge : inputEdges) {
+        edge.propagateBackward(deltaPushBack);
     }
 }
 
@@ -174,12 +188,12 @@ void Node::initializeWeightsAndBias(double newBias) {
     std::default_random_engine generator;
     std::normal_distribution<double> distribution(0.0, 1.0);
 
-    for (Edge* edge : inputEdges) {
-        edge->setWeight(distribution(generator) / std::sqrt(N));
+    for (Edge edge : inputEdges) {
+        edge.weight = distribution(generator) / std::sqrt(N);
     }
 }
 
-std::vector<Edge*> Node::getInputEdges() {
+std::vector<Edge> Node::getInputEdges() {
     return inputEdges;
 }
 

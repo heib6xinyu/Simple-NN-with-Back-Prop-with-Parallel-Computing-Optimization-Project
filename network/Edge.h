@@ -13,8 +13,10 @@ public:
     Edge(Node* inputNode, Node* outputNode);
 
     void propagateBackward(double delta);
-    bool equals(const Edge& other) const;
+    bool equals(Edge other) const;
     void setWeight(double weight);
+    double getWeight();
+    std::string toString();
 };
 
 #endif // EDGE_H

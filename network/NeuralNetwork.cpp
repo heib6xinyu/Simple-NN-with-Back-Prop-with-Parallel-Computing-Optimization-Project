@@ -7,12 +7,13 @@
 #include <string>
 #include <stdexcept>
 #include <random>
+#include <exception>
 
 NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenLayerSizes, int outputLayerSize, LossFunction lossFunc)
     : lossFunction(lossFunc), numberWeights(0) {
     // The number of layers in the neural network is 2 plus the number of hidden layers
     int totalLayers = hiddenLayerSizes.size() + 2;
-    layers.reserve(totalLayers);
+    //layers.reserve(totalLayers);
 
     Log::info("Creating a neural network with " + std::to_string(hiddenLayerSizes.size()) + " hidden layers.");
 
@@ -43,9 +44,9 @@ NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenL
 
         // Create and add nodes to the current layer
         std::vector<Node> currentLayer;
-        currentLayer.reserve(layerSize);
+        //currentLayer.reserve(layerSize);
         for (int j = 0; j < layerSize; ++j) {
-            currentLayer.emplace_back(layer, j, nodeType, activationType);
+            currentLayer.push_back(Node(layer, j, nodeType, activationType));
         }
 
         layers.push_back(std::move(currentLayer));
@@ -65,39 +66,49 @@ void NeuralNetwork::reset() {
 }
 
 std::vector<double> NeuralNetwork::getWeights() const {
-    std::vector<double> weights;
-    weights.reserve(numberWeights);
-
+    printf("A\n");
+    std::vector<double> weights(numberWeights);
+    printf("AA\n");
     int position = 0;
-    for (const auto& layer : layers) {
-        for (Node node : layer) {
-            int nWeights = node.getWeights(position, weights);
+    //for (std::vector<Node> layer : layers) {
+    for (size_t i = 0; i < layers.size(); ++i) {
+        printf("l");
+        for (size_t j = 0; j < layers[i].size(); ++j) {
+        //for (Node node : layers[i]) {
+            printf("BBBB\n");
+            const Node& n = layers[i][j];
+            printf("UUUU\n");
+            int nWeights = n.getWeights(position, weights);
+            printf("AAAA\n");
             position += nWeights;
-
+            printf("%d %d\n", position, numberWeights);
             if (position > numberWeights) {
                 throw std::runtime_error("The numberWeights field of the NeuralNetwork was less than the actual number of weights and biases.");
             }
+            printf("OOOO\n");
         }
+        printf("g");
     }
-
+    printf("Exit.");
     return weights;
 }
 
-void NeuralNetwork::setWeights(const std::vector<double>& newWeights) {
+void NeuralNetwork::setWeights(std::vector<double>& newWeights) {
     if (numberWeights != newWeights.size()) {
         throw std::runtime_error("Could not setWeights because the number of new weights: " + std::to_string(newWeights.size()) + " was not equal to the number of weights in the NeuralNetwork: " + std::to_string(numberWeights));
     }
-
     int position = 0;
     for (auto& layer : layers) {
         for (auto& node : layer) {
             int nWeights = node.setWeights(position, newWeights);
             position += nWeights;
-
             if (position > numberWeights) {
                 throw std::runtime_error("The numberWeights field of the NeuralNetwork was (" + std::to_string(numberWeights) + ") but when setting the weights there were more hidden nodes and edges than numberWeights. This should not happen unless numberWeights is not being updated correctly.");
             }
         }
+    }
+    for (double x : newWeights) {
+        printf("%lf ", x);
     }
 }
 
@@ -119,18 +130,18 @@ std::vector<double> NeuralNetwork::getDeltas() const {
     return deltas;
 }
 
-void NeuralNetwork::connectFully() {
+void NeuralNetwork::connectFully() { // TODO: TEST!!!
     for (size_t layer = 0; layer < layers.size() - 1; ++layer) {
         for (Node& inputNode : layers[layer]) {
             for (Node& outputNode : layers[layer + 1]) {
                 Edge newEdge = Edge(&inputNode, &outputNode);
-                inputNode.addOutgoingEdge(&newEdge);
-                outputNode.addIncomingEdge(&newEdge);
-                ++numberWeights;
+                inputNode.addOutgoingEdge(newEdge);
+                outputNode.addIncomingEdge(newEdge);
+                numberWeights++;
+                Log::trace("Number of weights now: " + std::to_string(numberWeights));
             }
         }
     }
-    Log::trace("Number of weights now: " + std::to_string(numberWeights));
 }
 
 void NeuralNetwork::connectNodes(int inputLayer, int inputNumber, int outputLayer, int outputNumber) {
@@ -144,8 +155,8 @@ void NeuralNetwork::connectNodes(int inputLayer, int inputNumber, int outputLaye
     Node* inputNode = &layers[inputLayer][inputNumber];
     Node* outputNode = &layers[outputLayer][outputNumber];
     Edge newEdge = Edge(inputNode, outputNode);
-    inputNode->addOutgoingEdge(&newEdge);
-    outputNode->addIncomingEdge(&newEdge);
+    inputNode->addOutgoingEdge(newEdge);
+    outputNode->addIncomingEdge(newEdge);
     ++numberWeights;
     Log::trace("Number of weights now: " + std::to_string(numberWeights));
 }
@@ -159,8 +170,9 @@ void NeuralNetwork::initializeRandomly(double bias) {
             double fanIn = node.getInputEdges().size();
             double variance = fanIn > 0 ? 1.0 / std::sqrt(fanIn) : 1.0;
 
-            for (Edge* edge : node.getInputEdges()) {
-                edge->setWeight(distribution(generator) * variance);
+            for (Edge edge : node.getInputEdges()) {
+                edge.weight = distribution(generator) * variance;
+                
             }
 
             node.setBias(bias);

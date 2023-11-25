@@ -2,17 +2,15 @@
 #include "../util/Log.h" 
 #include <iostream>
 
-Edge::Edge(Node* inputNode, Node* outputNode) {
-    this->inputNode = inputNode;
-    this->outputNode = outputNode;
+Edge::Edge(Node* inputNode, Node* outputNode) : weight(0), weightDelta(0), inputNode(inputNode), outputNode(outputNode) {
     Log::debug("Created a new edge with input " + inputNode->toString() + " and output " + outputNode->toString());
 
     // Initialize the weight and delta to 0
-    weight = 0;
-    weightDelta = 0;
+    //weight = 0;
+    //weightDelta = 0;
 
-    inputNode->addOutgoingEdge(this);
-    outputNode->addIncomingEdge(this);
+    //inputNode->addOutgoingEdge(this);
+    //outputNode->addIncomingEdge(this);
 }
 
 void Edge::propagateBackward(double delta) {
@@ -32,11 +30,20 @@ void Edge::propagateBackward(double delta) {
 
 void Edge::setWeight(double new_weight) {
     weight = new_weight;
+    printf("Edge weight: %lf. Weight: %lf\n", weight, new_weight);
 }
 
-bool Edge::equals(const Edge& other) const {
+double Edge::getWeight() {
+    return weight;
+}
+
+bool Edge::equals(Edge other) const {
     return this->inputNode->layer == other.inputNode->layer &&
         this->inputNode->number == other.inputNode->number &&
         this->outputNode->layer == other.outputNode->layer &&
         this->outputNode->number == other.outputNode->number;
+}
+
+std::string Edge::toString() {
+    return "Edge Input Node: " + inputNode->toString() + " Output Node: " + outputNode->toString();
 }
