@@ -42,7 +42,6 @@ private:
 public:
     // Constructor and destructor
     Node(int layerValue, int numberValue, NodeType type, ActivationType actType);
-    ~Node();
 
     // Method to reset node state
     void reset();

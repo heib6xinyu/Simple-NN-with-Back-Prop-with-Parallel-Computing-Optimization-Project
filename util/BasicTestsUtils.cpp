@@ -53,13 +53,9 @@ void checkGetSetWeights(NeuralNetwork network, std::string networkName) {
     for (int i = 0; i < numberWeights; ++i) {
         testWeights[i] = 1.0 * i;
     }
-    printf("Here1!");
     network.setWeights(testWeights);
-    printf("End1!");
     std::vector<double> testWeights2 = network.getWeights();
-    printf("LL");
     bool passed = true;
-    printf("LL2");
     for (int i = 0; i < numberWeights; ++i) {
         Log::trace("testWeights[" + std::to_string(i) + "]: " + std::to_string(testWeights[i]) 
             + ", testWeights2[" + std::to_string(i) + "]: " + std::to_string(testWeights2[i]));
@@ -68,7 +64,6 @@ void checkGetSetWeights(NeuralNetwork network, std::string networkName) {
                 + std::to_string(testWeights[i]) + " and testWeights2[" + std::to_string(i) + "] was " + std::to_string(testWeights2[i]) + ".");
         }
     }
-    printf("123\n");
 }
 
 void testLoadingXOR() {
@@ -191,10 +186,8 @@ void testXORNeuralNetwork() {
         //sure the weights we get are the same and in the
         //same order as the weights we set
         checkGetSetWeights(xorNeuralNetwork1, "xorNeuralNetwork1");
-        printf("123\n");
         Log::info("Passed testXORNeuralNetwork 1");
     } catch (const std::exception& e) {
-        printf("Error!");
         Log::fatal("Failed testXORNeuralNetwork on Neural Network 1");
         //Log::fatal("Threw exception: " + (std::string) e.what());
         passed = false;

@@ -1,7 +1,7 @@
 #include "Log.h"
 #include <iostream>
 
-Log::Level Log::logLevel = Log::ALL;  // Default level
+Log::Level Log::logLevel = Log::INFO;  // Default level
 
 void Log::setLevel(Log::Level newLevel) {
     logLevel = newLevel;

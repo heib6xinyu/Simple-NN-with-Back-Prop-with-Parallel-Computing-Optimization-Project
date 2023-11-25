@@ -9,7 +9,6 @@ int main(int argc, char* argv[]) {
     //It will not work until you correctly implement the 
     //NeuralNetwork.connectNodes(int, int, int, int) method.
     createTinyNeuralNetwork(xorData, LossFunction::NONE);
-
     //test creating a small NN
     //It will not work until you correctly implement the 
     //NeuralNetwork.connectNodes(int, int, int, int) method.

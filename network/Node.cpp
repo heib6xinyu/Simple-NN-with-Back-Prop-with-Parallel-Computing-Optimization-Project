@@ -17,19 +17,6 @@ Node::Node(int layerValue, int numberValue, NodeType type, ActivationType actTyp
     // Initialization logic here if needed
 }
 
-// Destructor to clean up the edges
-Node::~Node() {
-    for (Edge edge : inputEdges) {
-        delete &edge;
-    }
-    inputEdges.clear();
-
-    for (Edge edge : outputEdges) {
-        delete &edge;
-    }
-    outputEdges.clear();
-}
-
 void Node::reset() {
     preActivationValue = 0;
     postActivationValue = 0;
@@ -41,7 +28,7 @@ void Node::reset() {
 }
 
 void Node::addOutgoingEdge(Edge outgoingEdge) {
-    if (&outgoingEdge != nullptr) {
+    if (&outgoingEdge != NULL) {
         outputEdges.push_back(outgoingEdge);
         Log::trace("Node " + toString() + " added outgoing edge to Node " + outgoingEdge.outputNode->toString());
     }
@@ -97,7 +84,6 @@ void Node::applyTanh() {
 }
 
 int Node::getWeights(int position, std::vector<double>& weights) const {
-    printf("ZZZZ\n");
     int weightCount = 0;
 
     // The first weight set will be the bias if it is a hidden node
@@ -107,7 +93,6 @@ int Node::getWeights(int position, std::vector<double>& weights) const {
     }
 
     for (Edge edge : outputEdges) {
-        printf("A: %lf\n", edge.weight);
         weights[position + weightCount] = edge.weight;
         weightCount++;
     }
@@ -142,18 +127,8 @@ int Node::setWeights(int position, std::vector<double>& weights) {
     }
 
     for (size_t i = 0; i < outputEdges.size(); ++i) {
-    //for (Edge edge : outputEdges) {
-        printf("Edge: %s\n", outputEdges[i].toString().c_str());
-        printf("Edge weight before: %lf\n", outputEdges[i].weight);
-        printf("Weight: %lf\n", weights[position + weightCount]);
         outputEdges[i].weight = weights[position + weightCount];
-        //edge.weight = weights[position + weightCount];
-        printf("Edge weight after: %lf\n", outputEdges[i].weight);
         weightCount++;
-    }
-    for (Edge edge : outputEdges) {
-        printf("Edge: %s\n", edge.toString().c_str());
-        printf("Edge weight after: %lf\n", edge.weight);
     }
     return weightCount;
 }

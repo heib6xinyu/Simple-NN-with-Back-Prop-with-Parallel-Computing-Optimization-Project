@@ -66,30 +66,19 @@ void NeuralNetwork::reset() {
 }
 
 std::vector<double> NeuralNetwork::getWeights() const {
-    printf("A\n");
     std::vector<double> weights(numberWeights);
-    printf("AA\n");
     int position = 0;
     //for (std::vector<Node> layer : layers) {
     for (size_t i = 0; i < layers.size(); ++i) {
-        printf("l");
         for (size_t j = 0; j < layers[i].size(); ++j) {
-        //for (Node node : layers[i]) {
-            printf("BBBB\n");
             const Node& n = layers[i][j];
-            printf("UUUU\n");
             int nWeights = n.getWeights(position, weights);
-            printf("AAAA\n");
             position += nWeights;
-            printf("%d %d\n", position, numberWeights);
             if (position > numberWeights) {
                 throw std::runtime_error("The numberWeights field of the NeuralNetwork was less than the actual number of weights and biases.");
             }
-            printf("OOOO\n");
         }
-        printf("g");
     }
-    printf("Exit.");
     return weights;
 }
 
@@ -106,9 +95,6 @@ void NeuralNetwork::setWeights(std::vector<double>& newWeights) {
                 throw std::runtime_error("The numberWeights field of the NeuralNetwork was (" + std::to_string(numberWeights) + ") but when setting the weights there were more hidden nodes and edges than numberWeights. This should not happen unless numberWeights is not being updated correctly.");
             }
         }
-    }
-    for (double x : newWeights) {
-        printf("%lf ", x);
     }
 }
 

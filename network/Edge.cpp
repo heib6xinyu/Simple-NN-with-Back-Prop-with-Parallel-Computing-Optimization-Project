@@ -30,7 +30,6 @@ void Edge::propagateBackward(double delta) {
 
 void Edge::setWeight(double new_weight) {
     weight = new_weight;
-    printf("Edge weight: %lf. Weight: %lf\n", weight, new_weight);
 }
 
 double Edge::getWeight() {

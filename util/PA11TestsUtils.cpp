@@ -22,44 +22,36 @@
  * @return A NeuralNetwork of the above size
  */
 NeuralNetwork createTinyNeuralNetwork(DataSet dataSet, LossFunction lossFunction) {
-    NeuralNetwork* tinyNN = nullptr;
     try {
         int expectedWeights = 0;
+        int outputLayerSize = 0;
         if (dataSet.getName() == "iris data") {
-            NeuralNetwork tmp = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{2}, dataSet.getNumberClasses(), lossFunction);
-            tinyNN = &tmp;
             expectedWeights = 16;
+            outputLayerSize = dataSet.getNumberClasses();
         } else if (dataSet.getName() == "mushroom data") {
-            NeuralNetwork tmp = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{2}, dataSet.getNumberClasses(), lossFunction);
-            tinyNN = &tmp;
             expectedWeights = 8;
+            outputLayerSize = dataSet.getNumberClasses();
         } else {
-            NeuralNetwork tmp = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{2}, dataSet.getNumberOutputs(), lossFunction);
-            tinyNN = &tmp;
             expectedWeights = 8;
+            outputLayerSize = dataSet.getNumberOutputs();
         }
-        tinyNN->connectFully();
-
-        int numberWeights = tinyNN->getNumberWeights();
+        NeuralNetwork tinyNN = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{2}, dataSet.getNumberOutputs(), lossFunction);
+        tinyNN.connectFully();
+        int numberWeights = tinyNN.getNumberWeights();
         if (numberWeights != expectedWeights) {
             //this network should have 8 weights:
             //6 for the edges
             //2 for the hidden nodes
             throw std::runtime_error("Failed getNumberWeights on tinyNN, returned " + std::to_string(numberWeights) + " which should have been " + std::to_string(expectedWeights) + ".");
         }
-
-        //set the weights and then get the weights to make
-        //sure the weights we get are the same and in the
-        //same order as the weights we set
-        checkGetSetWeights(*tinyNN, "tinyNN");
-        
+        checkGetSetWeights(tinyNN, "tinyNN");
         Log::debug("successfully created tinyNN");
+        return tinyNN;
     } catch (std::runtime_error e) {
         Log::fatal("Failed creating tinyNN");
         Log::fatal("Threw exception: " + (std::string) e.what());
+        throw e;
     }
-
-    return *tinyNN;
 }
 
 
@@ -72,65 +64,89 @@ NeuralNetwork createTinyNeuralNetwork(DataSet dataSet, LossFunction lossFunction
  * @return A NeuralNetwork of the above size
  */
 NeuralNetwork createSmallNeuralNetwork(DataSet dataSet, LossFunction lossFunction) {
-    NeuralNetwork* smallNN = nullptr;
     try {
         int expectedWeights = 0;
         if (dataSet.getName() == "iris data") {
-            NeuralNetwork tmp = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 3}, dataSet.getNumberClasses(), lossFunction);
-            smallNN = &tmp;
-            smallNN->connectFully();
+            NeuralNetwork smallNN = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 3}, dataSet.getNumberClasses(), lossFunction);
+            smallNN.connectFully();
             expectedWeights = 36;
+            int numberWeights = smallNN.getNumberWeights();
+            if (numberWeights != expectedWeights) {
+                //this network should have 19 weights:
+                //13 for the edges
+                //6 for the hidden nodes
+                throw   std::runtime_error("Failed getNumberWeights on smallNN, returned " + std::to_string(numberWeights) + " which should have been " + std::to_string(expectedWeights) + ".");
+            }
+
+            //set the weights and then get the weights to make
+            //sure the weights we get are the same and in the
+            //same order as the weights we set
+            checkGetSetWeights(smallNN, "smallNN");
+
+            Log::debug("successfully created smallNN");
+            return smallNN;
         } else if (dataSet.getName() == "mushroom data") {
-            NeuralNetwork tmp = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 3}, dataSet.getNumberClasses(), lossFunction);
-            smallNN = &tmp;
-            smallNN->connectFully();
+            NeuralNetwork smallNN = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 3}, dataSet.getNumberClasses(), lossFunction);
+            smallNN.connectFully();
             expectedWeights = 8;
+            int numberWeights = smallNN.getNumberWeights();
+            if (numberWeights != expectedWeights) {
+                //this network should have 19 weights:
+                //13 for the edges
+                //6 for the hidden nodes
+                throw   std::runtime_error("Failed getNumberWeights on smallNN, returned " + std::to_string(numberWeights) + " which should have been " + std::to_string(expectedWeights) + ".");
+            }
+
+            //set the weights and then get the weights to make
+            //sure the weights we get are the same and in the
+            //same order as the weights we set
+            checkGetSetWeights(smallNN, "smallNN");
+
+            Log::debug("successfully created smallNN");
+            return smallNN;
         } else {
-            NeuralNetwork tmp = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 3}, dataSet.getNumberOutputs(), lossFunction);
-            smallNN = &tmp;
+            NeuralNetwork smallNN = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 3}, dataSet.getNumberOutputs(), lossFunction);
             expectedWeights = 19;
 
             //connect the input to the first hidden layer
-            smallNN->connectNodes(0,0, 1,0);
-            smallNN->connectNodes(0,0, 1,1);
-            smallNN->connectNodes(0,1, 1,1);
-            smallNN->connectNodes(0,1, 1,2);
+            smallNN.connectNodes(0,0, 1,0);
+            smallNN.connectNodes(0,0, 1,1);
+            smallNN.connectNodes(0,1, 1,1);
+            smallNN.connectNodes(0,1, 1,2);
 
             //connect the first hidden to the second hidden layer
-            smallNN->connectNodes(1,0, 2,0);
-            smallNN->connectNodes(1,0, 2,1);
-            smallNN->connectNodes(1,1, 2,1);
-            smallNN->connectNodes(1,1, 2,2);
-            smallNN->connectNodes(1,2, 2,1);
-            smallNN->connectNodes(1,2, 2,2);
+            smallNN.connectNodes(1,0, 2,0);
+            smallNN.connectNodes(1,0, 2,1);
+            smallNN.connectNodes(1,1, 2,1);
+            smallNN.connectNodes(1,1, 2,2);
+            smallNN.connectNodes(1,2, 2,1);
+            smallNN.connectNodes(1,2, 2,2);
 
             //connect the second hidden layer to the output
-            smallNN->connectNodes(2,0, 3,0);
-            smallNN->connectNodes(2,1, 3,0);
-            smallNN->connectNodes(2,2, 3,0);
+            smallNN.connectNodes(2,0, 3,0);
+            smallNN.connectNodes(2,1, 3,0);
+            smallNN.connectNodes(2,2, 3,0);
+            int numberWeights = smallNN.getNumberWeights();
+            if (numberWeights != expectedWeights) {
+                //this network should have 19 weights:
+                //13 for the edges
+                //6 for the hidden nodes
+                throw   std::runtime_error("Failed getNumberWeights on smallNN, returned " + std::to_string(numberWeights) + " which should have been " + std::to_string(expectedWeights) + ".");
+            }
 
+            //set the weights and then get the weights to make
+            //sure the weights we get are the same and in the
+            //same order as the weights we set
+            checkGetSetWeights(smallNN, "smallNN");
+
+            Log::debug("successfully created smallNN");
+            return smallNN;
         }
-
-        int numberWeights = smallNN->getNumberWeights();
-        if (numberWeights != expectedWeights) {
-            //this network should have 19 weights:
-            //13 for the edges
-            //6 for the hidden nodes
-            throw   std::runtime_error("Failed getNumberWeights on smallNN, returned " + std::to_string(numberWeights) + " which should have been " + std::to_string(expectedWeights) + ".");
-        }
-
-        //set the weights and then get the weights to make
-        //sure the weights we get are the same and in the
-        //same order as the weights we set
-        checkGetSetWeights(*smallNN, "smallNN");
-
-        Log::debug("successfully created smallNN");
     } catch (std::runtime_error e) {
         Log::fatal("Failed creating smallNN");
         Log::fatal("Threw exception: " + (std::string) e.what());
+        throw e;
     }
-
-    return *smallNN;
 }
 
 /**
@@ -142,89 +158,114 @@ NeuralNetwork createSmallNeuralNetwork(DataSet dataSet, LossFunction lossFunctio
  * @return A NeuralNetwork of the above size
  */
 NeuralNetwork createLargeNeuralNetwork(DataSet dataSet, LossFunction lossFunction) {
-    NeuralNetwork* largeNN = nullptr;
     try {
         int expectedWeights = 0;
         if (dataSet.getName()  == "iris data") {
-            NeuralNetwork tmp = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 5, 4}, dataSet.getNumberClasses(), lossFunction);
-            largeNN = &tmp;
-            largeNN->connectFully();
+            NeuralNetwork largeNN = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 5, 4}, dataSet.getNumberClasses(), lossFunction);
+            largeNN.connectFully();
             expectedWeights = 71;
+            int numberWeights = largeNN.getNumberWeights();
+            if (numberWeights != expectedWeights) {
+                //this network should have 41 weights:
+                //29 for the edges
+                //12 for the hidden nodes
+                throw   std::runtime_error("Failed getNumberWeights on largeNN, returned " + std::to_string(numberWeights) + " which should have been " + std::to_string(expectedWeights) + ".");
+            }
+
+            //set the weights and then get the weights to make
+            //sure the weights we get are the same and in the
+            //same order as the weights we set
+            checkGetSetWeights(largeNN, "largeNN");
+
+            Log::debug("successfully created largeNN");
+            return largeNN;
         } else if (dataSet.getName()  == "mushroom data") {
-            NeuralNetwork tmp = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 5, 4}, dataSet.getNumberClasses(), lossFunction);
-            largeNN = &tmp;
-            largeNN->connectFully();
+            NeuralNetwork largeNN = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 5, 4}, dataSet.getNumberClasses(), lossFunction);
+            largeNN.connectFully();
             expectedWeights = 8;
+            int numberWeights = largeNN.getNumberWeights();
+            if (numberWeights != expectedWeights) {
+                //this network should have 41 weights:
+                //29 for the edges
+                //12 for the hidden nodes
+                throw   std::runtime_error("Failed getNumberWeights on largeNN, returned " + std::to_string(numberWeights) + " which should have been " + std::to_string(expectedWeights) + ".");
+            }
+
+            //set the weights and then get the weights to make
+            //sure the weights we get are the same and in the
+            //same order as the weights we set
+            checkGetSetWeights(largeNN, "largeNN");
+
+            Log::debug("successfully created largeNN");
+            return largeNN;
         } else {
-            NeuralNetwork tmp = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 5, 4}, dataSet.getNumberOutputs(), lossFunction);
-            largeNN = &tmp;
+            NeuralNetwork largeNN = NeuralNetwork(dataSet.getNumberInputs(), std::vector<int>{3, 5, 4}, dataSet.getNumberOutputs(), lossFunction);
             expectedWeights = 41;
 
             //connect the input to the first hidden layer (full connections)
-            largeNN->connectNodes(0,0, 1,0);
-            largeNN->connectNodes(0,0, 1,1);
-            largeNN->connectNodes(0,0, 1,2);
-            largeNN->connectNodes(0,1, 1,0);
-            largeNN->connectNodes(0,1, 1,1);
-            largeNN->connectNodes(0,1, 1,2);
+            largeNN.connectNodes(0,0, 1,0);
+            largeNN.connectNodes(0,0, 1,1);
+            largeNN.connectNodes(0,0, 1,2);
+            largeNN.connectNodes(0,1, 1,0);
+            largeNN.connectNodes(0,1, 1,1);
+            largeNN.connectNodes(0,1, 1,2);
 
             //connect the first hidden to the second hidden layer
-            largeNN->connectNodes(1,0, 2,0);
-            largeNN->connectNodes(1,0, 2,1);
-            largeNN->connectNodes(1,0, 2,2);
-            largeNN->connectNodes(1,0, 2,4);
+            largeNN.connectNodes(1,0, 2,0);
+            largeNN.connectNodes(1,0, 2,1);
+            largeNN.connectNodes(1,0, 2,2);
+            largeNN.connectNodes(1,0, 2,4);
 
-            largeNN->connectNodes(1,1, 2,1);
-            largeNN->connectNodes(1,1, 2,2);
-            largeNN->connectNodes(1,1, 2,3);
+            largeNN.connectNodes(1,1, 2,1);
+            largeNN.connectNodes(1,1, 2,2);
+            largeNN.connectNodes(1,1, 2,3);
 
-            largeNN->connectNodes(1,2, 2,0);
-            largeNN->connectNodes(1,2, 2,2);
-            largeNN->connectNodes(1,2, 2,3);
-            largeNN->connectNodes(1,2, 2,4);
+            largeNN.connectNodes(1,2, 2,0);
+            largeNN.connectNodes(1,2, 2,2);
+            largeNN.connectNodes(1,2, 2,3);
+            largeNN.connectNodes(1,2, 2,4);
 
             //connect the second hidden layer to the third hidden layer
-            largeNN->connectNodes(2,0, 3,0);
+            largeNN.connectNodes(2,0, 3,0);
 
-            largeNN->connectNodes(2,1, 3,0);
-            largeNN->connectNodes(2,1, 3,1);
+            largeNN.connectNodes(2,1, 3,0);
+            largeNN.connectNodes(2,1, 3,1);
 
-            largeNN->connectNodes(2,2, 3,1);
-            largeNN->connectNodes(2,2, 3,2);
+            largeNN.connectNodes(2,2, 3,1);
+            largeNN.connectNodes(2,2, 3,2);
 
-            largeNN->connectNodes(2,3, 3,2);
-            largeNN->connectNodes(2,3, 3,3);
+            largeNN.connectNodes(2,3, 3,2);
+            largeNN.connectNodes(2,3, 3,3);
 
-            largeNN->connectNodes(2,4, 3,3);
+            largeNN.connectNodes(2,4, 3,3);
 
             //connect the third hidden layer to the output layer
-            largeNN->connectNodes(3,0, 4,0);
-            largeNN->connectNodes(3,1, 4,0);
-            largeNN->connectNodes(3,2, 4,0);
-            largeNN->connectNodes(3,3, 4,0);
+            largeNN.connectNodes(3,0, 4,0);
+            largeNN.connectNodes(3,1, 4,0);
+            largeNN.connectNodes(3,2, 4,0);
+            largeNN.connectNodes(3,3, 4,0);
+
+            int numberWeights = largeNN.getNumberWeights();
+            if (numberWeights != expectedWeights) {
+                //this network should have 41 weights:
+                //29 for the edges
+                //12 for the hidden nodes
+                throw   std::runtime_error("Failed getNumberWeights on largeNN, returned " + std::to_string(numberWeights) + " which should have been " + std::to_string(expectedWeights) + ".");
+            }
+
+            //set the weights and then get the weights to make
+            //sure the weights we get are the same and in the
+            //same order as the weights we set
+            checkGetSetWeights(largeNN, "largeNN");
+
+            Log::debug("successfully created largeNN");
+            return largeNN;
         }
-
-
-        int numberWeights = largeNN->getNumberWeights();
-        if (numberWeights != expectedWeights) {
-            //this network should have 41 weights:
-            //29 for the edges
-            //12 for the hidden nodes
-            throw   std::runtime_error("Failed getNumberWeights on largeNN, returned " + std::to_string(numberWeights) + " which should have been " + std::to_string(expectedWeights) + ".");
-        }
-
-        //set the weights and then get the weights to make
-        //sure the weights we get are the same and in the
-        //same order as the weights we set
-        checkGetSetWeights(*largeNN, "largeNN");
-
-        Log::debug("successfully created largeNN");
     } catch (std::runtime_error e) {
         Log::fatal("Failed creating largeNN");
         Log::fatal("Threw exception: " + (std::string) e.what());
+        throw e;
     }
-
-    return *largeNN;
 }
 
 
