@@ -3,12 +3,12 @@
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
-#include "Log.h"
-#include "../data/DataSet.h"
-#include "../network/LossFunction.h"
-#include "../network/NeuralNetwork.h"
-#include "../data/Instance.h"
-#include "Vector.h"
+#include "./util/Log.h"
+#include "./data/DataSet.h"
+#include "./network/LossFunction.h"
+#include "./network/NeuralNetwork.h"
+#include "./data/Instance.h"
+#include "./util/Vector.h"
 
 // Function to display usage information
 void helpMessage() {
@@ -30,6 +30,66 @@ void helpMessage() {
     Log::info("\t\tlayer_size_1..n is a list of integers which are the number of nodes in each hidden layer");
 }
 
+DataSet getDataset(std::string dataSetName) {
+    if (dataSetName == "and") {
+        DataSet dataSet = DataSet("and data", "./datasets/and.txt");
+        return dataSet;
+    }
+    else if (dataSetName == "or") {
+        DataSet dataSet = DataSet("or data", "./datasets/or.txt");
+        return dataSet;
+    }
+    else if (dataSetName == "xor") {
+        DataSet dataSet = DataSet("xor data", "./datasets/xor.txt");
+        return dataSet;
+    }
+    else if (dataSetName == "iris") {
+        DataSet dataSet = DataSet("iris data", "./datasets/iris.txt");
+        std::vector<double> means = dataSet.getInputMeans();
+        std::vector<double> stdDevs = dataSet.getInputStandardDeviations();
+
+        Log::info("data set means: ");
+        Vector::print(means);
+
+        Log::info("data set standard deviations: ");
+        Vector::print(stdDevs);
+
+        dataSet.normalize(means, stdDevs);
+        return dataSet;
+    }
+    else if (dataSetName == "mushroom") {
+        DataSet dataSet = DataSet("mushroom data", "./datasets/agaricus-lepiota.txt");
+        return dataSet;
+    }
+    else {
+        Log::fatal("unknown data set : " + dataSetName);
+        exit(1);
+    }
+}
+
+int getOutputLayerSize(std::string dataSetName, DataSet dataSet) {
+    if (dataSetName == "and") {
+        return dataSet.getNumberOutputs();
+    }
+    else if (dataSetName == "or") {
+        return dataSet.getNumberOutputs();
+    }
+    else if (dataSetName == "xor") {
+        return dataSet.getNumberOutputs();
+    }
+    else if (dataSetName == "iris") {
+        return dataSet.getNumberClasses();
+    }
+
+    else if (dataSetName == "mushroom") {
+        return dataSet.getNumberClasses();
+    }
+    else {
+        Log::fatal("unknown data set : " + dataSetName);
+        exit(1);
+    }
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 15) {
         helpMessage();
@@ -37,6 +97,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::string dataSetName = argv[1];
+    printf("%s\n", dataSetName.c_str());
     std::string descentType = argv[2];
     int batchSize = std::stoi(argv[3]);
     std::string lossFunctionName = argv[4];
@@ -55,42 +116,8 @@ int main(int argc, char* argv[]) {
         layerSizes[i - 14] = std::stoi(argv[i]);
     }
 
-    int outputLayerSize = 0;
-    DataSet* dataSet = nullptr;
-    if (dataSetName == "and") {
-        dataSet = new DataSet("and data", "./datasets/and.txt");
-        outputLayerSize = dataSet->getNumberOutputs();
-    }
-    else if (dataSetName == "or") {
-        dataSet = new DataSet("or data", "./datasets/or.txt");
-        outputLayerSize = dataSet->getNumberOutputs();
-    }
-    else if (dataSetName == "xor") {
-        dataSet = new DataSet("xor data", "./datasets/xor.txt");
-        outputLayerSize = dataSet->getNumberOutputs();
-    }
-    else if (dataSetName == "iris") {
-        dataSet = new DataSet("iris data", "./datasets/iris.txt");
-        std::vector<double> means = dataSet->getInputMeans();
-        std::vector<double> stdDevs = dataSet->getInputStandardDeviations();
-
-        Log::info("data set means: " + Arrays::print(means));
-
-        Log::info("data set standard deviations: " +  Arrays::print(stdDevs));
-
-        dataSet->normalize(means, stdDevs);
-
-        outputLayerSize = dataSet->getNumberClasses();
-    }
-
-    else if (dataSetName == "mushroom") {
-        dataSet = new DataSet("mushroom data", "./datasets/agaricus-lepiota.txt");
-        outputLayerSize = dataSet->getNumberClasses();
-    }
-    else {
-        Log::fatal("unknown data set : " + dataSetName);
-        exit(1);
-    }
+    DataSet dataSet = getDataset(dataSetName);
+    int outputLayerSize = getOutputLayerSize(dataSetName, dataSet);
 
     LossFunction lossFunction = LossFunction::NONE;
     if (lossFunctionName == "l1_norm") {
@@ -120,9 +147,8 @@ int main(int argc, char* argv[]) {
     try {
         nn.connectFully();
     }
-    catch (NeuralNetworkException& e) {
+    catch (const std::runtime_error& e) {
         Log::fatal("ERROR connecting the neural network -- this should not happen!.");
-        e.printStackTrace();
         exit(1);
     }
 
@@ -157,7 +183,8 @@ int main(int argc, char* argv[]) {
         double accuracy = nn.calculateAccuracy(dataSet.getInstances());
 
         if (error < bestError) bestError = error;
-        std::cout << "  " << bestError << " " << error << " " << std::fixed << std::setprecision(5) << accuracy * 100.0 << std::endl;
+        Log::info("  " + std::to_string(bestError) + " " + std::to_string(error) + " " + std::to_string(accuracy * 100.0));
+        //std::cout << "  " << bestError << " " << error << " " << std::fixed << std::setprecision(5) << accuracy * 100.0 << std::endl;
 
         for (int i = 0; i < epochs; i++) {
             if (descentType == "stochastic") {
@@ -267,13 +294,13 @@ int main(int argc, char* argv[]) {
             error = nn.forwardPass(dataSet.getInstances()) / dataSet.getNumberInstances();
             accuracy = nn.calculateAccuracy(dataSet.getInstances());
             if (error < bestError) bestError = error;
-            std::cout << i << " " << bestError << " " << error << " " << std::fixed << std::setprecision(5) << accuracy * 100.0 << std::endl;
+            Log::info("  " + std::to_string(bestError) + " " + std::to_string(error) + " " + std::to_string(accuracy * 100.0));
+            //std::cout << i << " " << bestError << " " << error << " " << std::fixed << std::setprecision(5) << accuracy * 100.0 << std::endl;
         }
 
     }
-    catch (NeuralNetworkException& e) {
-        Log::fatal("gradient descent failed with exception: " + e.what());
-        e.printStackTrace();
+    catch (const std::runtime_error& e) {
+        Log::fatal("gradient descent failed with exception: " + (std::string) e.what());
         exit(1);
     }
 

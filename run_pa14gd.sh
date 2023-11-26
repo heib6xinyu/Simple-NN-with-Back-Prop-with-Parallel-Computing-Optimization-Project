@@ -1,0 +1,1 @@
+./PA14GD mushroom minibatch 20 softmax 100 0.1 0.01 0.9 adam 0.1 0.1 0.1 0.1 10 10 
