@@ -1,0 +1,281 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include "Log.h"
+#include "../data/DataSet.h"
+#include "../network/LossFunction.h"
+#include "../network/NeuralNetwork.h"
+#include "../data/Instance.h"
+#include "Vector.h"
+
+// Function to display usage information
+void helpMessage() {
+    Log::info("Usage:");
+    Log::info("\t./program <data set> <gradient descent type> <batch size> <loss function> <epochs> <bias> <learning rate> <mu> <adaptive learning rate> <decayRate> <eps> <beta1> <beta2> <layer_size_1 ... layer_size_n");
+    Log::info("\t\tdata set can be: 'and', 'or' or 'xor', 'iris' or 'mushroom'");
+    Log::info("\t\tgradient descent type can be: 'stochastic', 'minibatch' or 'batch'");
+    Log::info("\t\tbatch size should be > 0. Will be ignored for stochastic or batch gradient descent");
+    Log::info("\t\tloss function can be: 'l1_norm', 'l2_norm', 'svm' or 'softmax'");
+    Log::info("\t\tepochs is an integer > 0");
+    Log::info("\t\tbias is a double");
+    Log::info("\t\tlearning rate is a double usually small and > 0");
+    Log::info("\t\tmu is a double < 1 and typical values are 0.5, 0.9, 0.95, and 0.99");
+    Log::info("\t\tadaptive learning rate can be: 'nesterov', 'rmsprop' or 'adam'");
+    Log::info("\t\tdecayRate is a double");
+    Log::info("\t\teps is a double");
+    Log::info("\t\tbeta1 is a double");
+    Log::info("\t\tbeta2 is a double");
+    Log::info("\t\tlayer_size_1..n is a list of integers which are the number of nodes in each hidden layer");
+}
+
+int main(int argc, char* argv[]) {
+    if (argc < 15) {
+        helpMessage();
+        return 1;
+    }
+
+    std::string dataSetName = argv[1];
+    std::string descentType = argv[2];
+    int batchSize = std::stoi(argv[3]);
+    std::string lossFunctionName = argv[4];
+    int epochs = std::stoi(argv[5]);
+    double bias = std::stod(argv[6]);
+    double learningRate = std::stod(argv[7]);
+    double mu = std::stod(argv[8]);
+    std::string adaptive_l_r = argv[9];
+    double decayRate = std::stod(argv[10]);
+    double eps = std::stod(argv[11]);
+    double beta1 = std::stod(argv[12]);
+    double beta2 = std::stod(argv[13]);
+
+    std::vector<int> layerSizes(argc - 14);
+    for (int i = 14; i < argc; i++) {
+        layerSizes[i - 14] = std::stoi(argv[i]);
+    }
+
+    int outputLayerSize = 0;
+    DataSet* dataSet = nullptr;
+    if (dataSetName == "and") {
+        dataSet = new DataSet("and data", "./datasets/and.txt");
+        outputLayerSize = dataSet->getNumberOutputs();
+    }
+    else if (dataSetName == "or") {
+        dataSet = new DataSet("or data", "./datasets/or.txt");
+        outputLayerSize = dataSet->getNumberOutputs();
+    }
+    else if (dataSetName == "xor") {
+        dataSet = new DataSet("xor data", "./datasets/xor.txt");
+        outputLayerSize = dataSet->getNumberOutputs();
+    }
+    else if (dataSetName == "iris") {
+        dataSet = new DataSet("iris data", "./datasets/iris.txt");
+        std::vector<double> means = dataSet->getInputMeans();
+        std::vector<double> stdDevs = dataSet->getInputStandardDeviations();
+
+        Log::info("data set means: " + Arrays::print(means));
+
+        Log::info("data set standard deviations: " +  Arrays::print(stdDevs));
+
+        dataSet->normalize(means, stdDevs);
+
+        outputLayerSize = dataSet->getNumberClasses();
+    }
+
+    else if (dataSetName == "mushroom") {
+        dataSet = new DataSet("mushroom data", "./datasets/agaricus-lepiota.txt");
+        outputLayerSize = dataSet->getNumberClasses();
+    }
+    else {
+        Log::fatal("unknown data set : " + dataSetName);
+        exit(1);
+    }
+
+    LossFunction lossFunction = LossFunction::NONE;
+    if (lossFunctionName == "l1_norm") {
+        Log::info("Using an L1_NORM loss function.");
+        lossFunction = LossFunction::L1_NORM;
+    }
+    else if (lossFunctionName == "l2_norm") {
+        Log::info("Using an L2_NORM loss function.");
+        lossFunction = LossFunction::L2_NORM;
+    }
+    else if (lossFunctionName == "svm") {
+        Log::info("Using an SVM loss function.");
+        lossFunction = LossFunction::SVM;
+    }
+    else if (lossFunctionName == "softmax") {
+        Log::info("Using an SOFTMAX loss function.");
+        lossFunction = LossFunction::SOFTMAX;
+    }
+    else {
+        Log::fatal("unknown loss function : " + lossFunctionName);
+        exit(1);
+    }
+
+
+    NeuralNetwork nn(dataSet.getNumberInputs(), layerSizes, outputLayerSize, lossFunction);
+
+    try {
+        nn.connectFully();
+    }
+    catch (NeuralNetworkException& e) {
+        Log::fatal("ERROR connecting the neural network -- this should not happen!.");
+        e.printStackTrace();
+        exit(1);
+    }
+
+    // Start the gradient descent
+    try {
+        Log::info("Starting " + descentType + " gradient descent!");
+
+        if (descentType == "minibatch") {
+            Log::info(descentType + "(" + std::to_string(batchSize) + "), " + dataSetName + ", " + lossFunctionName + ", lr: " + std::to_string(learningRate) + ", mu:" + std::to_string(mu));
+        }
+        else {
+            Log::info(descentType + ", " + dataSetName + ", " + lossFunctionName + ", lr: " + std::to_string(learningRate) + ", mu:" + std::to_string(mu));
+        }
+
+        nn.initializeRandomly(bias);
+
+        // TODO: For PA1-4 use this and implement nesterov momentum
+        std::vector<double> velocity(nn.getNumberWeights());
+        std::vector<double> velocityPrev(nn.getNumberWeights());
+        std::vector<double> cache(nn.getNumberWeights());
+        std::vector<double> m(nn.getNumberWeights());
+
+        // TODO: BONUS PA1-4: (1 point) implement the RMSprop
+        // per-parameter adaptive learning rate method.
+        // TODO: BONUS PA1-4: (1 point) implement the Adam
+        // per-parameter adaptive learning rate method.
+        // For these, you will need to add a command line flag
+        // to select which method you'll use (nesterov, rmsprop, or adam)
+
+        double bestError = 10000;
+        double error = nn.forwardPass(dataSet.getInstances()) / dataSet.getNumberInstances();
+        double accuracy = nn.calculateAccuracy(dataSet.getInstances());
+
+        if (error < bestError) bestError = error;
+        std::cout << "  " << bestError << " " << error << " " << std::fixed << std::setprecision(5) << accuracy * 100.0 << std::endl;
+
+        for (int i = 0; i < epochs; i++) {
+            if (descentType == "stochastic") {
+                // TODO: PA1-3 you need to implement one epoch (pass through the
+                // training data) for stochastic gradient descent
+                dataSet.shuffle();
+                for (int ins = 0; ins < dataSet.getNumberInstances(); ins++) {
+                    Instance instance = dataSet.getInstance(ins);
+                    std::vector<double> gradient = nn.getGradient(instance);
+                    std::vector<double> newWeights = nn.getWeights();
+                    for (int j = 0; j < newWeights.size(); j++) {
+                        if (adaptive_l_r == "nesterov") {
+                            velocityPrev[j] = velocity[j];
+                            velocity[j] = mu * velocity[j] - learningRate * gradient[j];
+                            newWeights[j] += (-1 * mu * velocityPrev[j]) + ((1 + mu) * velocity[j]);
+                        }
+                        else if (adaptive_l_r == "rmsprop") {
+                            cache[j] = decayRate * cache[j] + (1 - decayRate) * std::pow(gradient[j], 2);
+                            newWeights[j] -= (learningRate / (std::sqrt(cache[j]) + eps)) * gradient[j];
+                        }
+                        else if (adaptive_l_r == "adam") {
+                            m[j] = beta1 * m[j] + (1 - beta1) * gradient[j];
+                            velocity[j] = beta2 * velocity[j] + (1 - beta2) * std::pow(gradient[j], 2);
+                            newWeights[j] -= learningRate * m[j] / std::sqrt(velocity[j] + eps);
+                        }
+                        else {
+                            Log::fatal("unknown adaptive learning rate type: " + adaptive_l_r);
+                            helpMessage();
+                            exit(1);
+                        }
+                    }
+                    nn.setWeights(newWeights);
+                }
+            }
+            else if (descentType == "minibatch") {
+                // TODO: PA1-3 you need to implement one epoch (pass through the
+                // training data) for minibatch gradient descent
+                dataSet.shuffle();
+                for (int ins = 0; ins < dataSet.getNumberInstances(); ins += batchSize) {
+                    std::vector<Instance> instances = dataSet.getInstances(ins, batchSize);
+                    std::vector<double> gradient = nn.getGradient(instances);
+                    std::vector<double> newWeights = nn.getWeights();
+                    for (int j = 0; j < newWeights.size(); j++) {
+                        if (adaptive_l_r == "nesterov") {
+                            velocityPrev[j] = velocity[j];
+                            velocity[j] = mu * velocity[j] - learningRate * gradient[j];
+                            newWeights[j] += (-1 * mu * velocityPrev[j]) + ((1 + mu) * velocity[j]);
+                        }
+                        else if (adaptive_l_r == "rmsprop") {
+                            cache[j] = decayRate * cache[j] + (1 - decayRate) * std::pow(gradient[j], 2);
+                            newWeights[j] -= (learningRate / (std::sqrt(cache[j]) + eps)) * gradient[j];
+                        }
+                        else if (adaptive_l_r == "adam") {
+                            m[j] = beta1 * m[j] + (1 - beta1) * gradient[j];
+                            velocity[j] = beta2 * velocity[j] + (1 - beta2) * std::pow(gradient[j], 2);
+                            newWeights[j] -= learningRate * m[j] / std::sqrt(velocity[j] + eps);
+                        }
+                        else {
+                            Log::fatal("unknown adaptive learning rate type: " + adaptive_l_r);
+                            helpMessage();
+                            exit(1);
+                        }
+                    }
+                    nn.setWeights(newWeights);
+                }
+            }
+            else if (descentType == "batch") {
+                // TODO: PA1-3 you need to implement one epoch (pass through the training
+                // instances) for batch gradient descent
+                std::vector<Instance> instances = dataSet.getInstances();
+                std::vector<double> gradient = nn.getGradient(instances);
+                std::vector<double> newWeights = nn.getWeights();
+                for (int ins = 0; ins < newWeights.size(); ins++) {
+                    if (adaptive_l_r == "nesterov") {
+                        velocityPrev[ins] = velocity[ins];
+                        velocity[ins] = mu * velocity[ins] - learningRate * gradient[ins];
+                        newWeights[ins] += (-1 * mu * velocityPrev[ins]) + ((1 + mu) * velocity[ins]);
+                    }
+                    else if (adaptive_l_r == "rmsprop") {
+                        cache[ins] = decayRate * cache[ins] + (1 - decayRate) * std::pow(gradient[ins], 2);
+                        newWeights[ins] -= (learningRate / (std::sqrt(cache[ins]) + eps)) * gradient[ins];
+                    }
+                    else if (adaptive_l_r == "adam") {
+                        m[ins] = beta1 * m[ins] + (1 - beta1) * gradient[ins];
+                        velocity[ins] = beta2 * velocity[ins] + (1 - beta2) * std::pow(gradient[ins], 2);
+                        newWeights[ins] -= learningRate * m[ins] / std::sqrt(velocity[ins] + eps);
+                    }
+                    else {
+                        Log::fatal("unknown adaptive learning rate type: " + adaptive_l_r);
+                        helpMessage();
+                        exit(1);
+                    }
+                }
+                nn.setWeights(newWeights);
+            }
+            else {
+                Log::fatal("unknown descent type: " + descentType);
+                helpMessage();
+                exit(1);
+            }
+
+            // Log::info("weights: " + std::to_string(nn.getWeights()));
+
+            // At the end of each epoch, calculate the error over the entire
+            // set of instances and print it out so we can see if we're decreasing
+            // the overall error
+            error = nn.forwardPass(dataSet.getInstances()) / dataSet.getNumberInstances();
+            accuracy = nn.calculateAccuracy(dataSet.getInstances());
+            if (error < bestError) bestError = error;
+            std::cout << i << " " << bestError << " " << error << " " << std::fixed << std::setprecision(5) << accuracy * 100.0 << std::endl;
+        }
+
+    }
+    catch (NeuralNetworkException& e) {
+        Log::fatal("gradient descent failed with exception: " + e.what());
+        e.printStackTrace();
+        exit(1);
+    }
+
+    return 0;
+}
