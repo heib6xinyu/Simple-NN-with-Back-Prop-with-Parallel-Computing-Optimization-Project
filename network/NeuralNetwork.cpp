@@ -192,11 +192,14 @@ double NeuralNetwork::forwardPass(const Instance& instance) {
     const std::vector<double>& expectedOutputs = instance.expectedOutputs;
 
     double outputSum = 0;
+    printf("OutputSum: ");
     if (lossFunction == LossFunction::NONE) {
         // Just sum up the outputs
         for (const auto& node : outputLayer) {
             outputSum += node.postActivationValue;
+            printf("%lf ", outputSum);
         }
+        printf("\n");
     }
     else if (lossFunction == LossFunction::L1_NORM) {
         // Iterate over the output nodes to calculate the L1 loss and the deltas
@@ -346,7 +349,10 @@ const double H = 0.0000001;
 
 std::vector<double> NeuralNetwork::getNumericGradient(const Instance& instance) {
     std::vector<double> currentWeights = getWeights();
-    std::vector<double> testWeights = currentWeights;
+    std::vector<double> testWeights = std::vector<double>(currentWeights.size(), 0.0);
+    for (size_t i = 0; i < currentWeights.size(); ++i) {
+        testWeights[i] = currentWeights[i];
+    }
     std::vector<double> numericGradient(currentWeights.size(), 0.0);
 
     for (size_t i = 0; i < currentWeights.size(); ++i) {
@@ -354,22 +360,28 @@ std::vector<double> NeuralNetwork::getNumericGradient(const Instance& instance) 
         testWeights[i] = currentWeights[i] + H;
         setWeights(testWeights);
         double outputPlusH = forwardPass(instance);
+        printf("OutputPlus: %g\n", outputPlusH);
 
         // Decrement weight by H
         testWeights[i] = currentWeights[i] - H;
         setWeights(testWeights);
         double outputMinusH = forwardPass(instance);
-
+        printf("OutputMinus: %g\n", outputMinusH);
         // Calculate the gradient
         numericGradient[i] = (outputPlusH - outputMinusH) / (2 * H);
 
         // Reset the weight for the next iteration
-        testWeights[i] = currentWeights[i];
+        //testWeights[i] = currentWeights[i];
+        printf("Numeric Gradient: ");
+        for (double g : numericGradient) {
+            printf("%lf ", g);
+        }
+        printf("\n");
     }
 
     // Reset the weights to their original values
     setWeights(currentWeights);
-
+    
     return numericGradient;
 }
 

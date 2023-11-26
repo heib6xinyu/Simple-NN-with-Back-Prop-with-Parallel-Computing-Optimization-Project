@@ -48,8 +48,8 @@ void testTinyGradientNumeric(DataSet xorData) {
 
         tinyNN.setWeights(weights);
         
-         std::vector<double> calculatedGradient =    std::vector<double>{0.0, 0.0, 0.0, 0.0, -0.06250000073038109, 0.0, -0.0875000000233328, 0.0};
-         std::vector<double> numericGradient = tinyNN.getNumericGradient(instance00);
+        std::vector<double> calculatedGradient =    std::vector<double>{0.0, 0.0, 0.0, 0.0, -0.06250000073038109, 0.0, -0.0875000000233328, 0.0};
+        std::vector<double> numericGradient = tinyNN.getNumericGradient(instance00);
         if (! gradientsCloseEnough(calculatedGradient, numericGradient)) {
             throw std::runtime_error("Gradients not close enough on testTinyGradientNumeric, instance 00!");
         }

@@ -20,6 +20,7 @@ Node::Node(int layerValue, int numberValue, NodeType type, ActivationType actTyp
 void Node::reset() {
     preActivationValue = 0;
     postActivationValue = 0;
+    activationDerivative = 0;
     delta = 0;
     biasDelta = 0;
     for (Edge edge : inputEdges) {
@@ -48,10 +49,11 @@ void Node::addIncomingEdge(Edge incomingEdge) {
 }
 
 void Node::propagateForward() {
-    preActivationValue += bias;
     for (Edge edge : inputEdges) {
         preActivationValue += edge.getWeight() * edge.inputNode->postActivationValue;
     }
+    printf("Bias %lf\n", bias);
+    preActivationValue += bias;
 
     switch (activationType) {
     case ActivationType::LINEAR:
@@ -80,7 +82,7 @@ void Node::applySigmoid() {
 
 void Node::applyTanh() {
     postActivationValue = tanh(preActivationValue);
-    activationDerivative = 1 - postActivationValue * postActivationValue;
+    activationDerivative = 1 - (postActivationValue * postActivationValue);
 }
 
 int Node::getWeights(int position, std::vector<double>& weights) const {
