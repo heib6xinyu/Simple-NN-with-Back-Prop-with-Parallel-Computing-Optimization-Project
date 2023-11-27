@@ -103,7 +103,7 @@ std::vector<double> DataSet::getInputStandardDeviations() {
 }
 
 void DataSet::normalize(const std::vector<double>& inputMeans, const std::vector<double>& inputStandardDeviations) {
-    for (Instance instance : instances) {
+    for (Instance& instance : instances) {
         for (size_t i = 0; i < instance.inputs.size(); ++i) {
             instance.inputs[i] = (instance.inputs[i] - inputMeans[i]) / inputStandardDeviations[i];
         }

@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "ActivationType.h"
+#include <memory>
 
 // Forward declaration of Edge class to avoid circular dependencies
 class Edge;
@@ -28,8 +29,8 @@ private:
     double activationDerivative;
     double bias;
     double biasDelta;
-    std::vector<Edge> inputEdges;
-    std::vector<Edge> outputEdges;
+    std::vector<std::shared_ptr<Edge>> inputEdges;
+    std::vector<std::shared_ptr<Edge>> outputEdges;
 
     // Helper methods for activation functions
     void applyLinear();
@@ -47,8 +48,8 @@ public:
     void reset();
 
     // Edge management
-    void addOutgoingEdge(Edge outgoingEdge);
-    void addIncomingEdge(Edge incomingEdge);
+    void addOutgoingEdge(std::shared_ptr<Edge> outgoingEdge);
+    void addIncomingEdge(std::shared_ptr<Edge> incomingEdge);
 
     // Propagation methods
     void propagateForward();
@@ -60,7 +61,7 @@ public:
     int setWeights(int position, std::vector<double>& weights);
     void setBias(double bias);
 
-    std::vector<Edge> getInputEdges(); 
+    std::vector<std::shared_ptr<Edge>> getInputEdges(); 
 
     // Initialization of weights and bias
     void initializeWeightsAndBias(double newBias);

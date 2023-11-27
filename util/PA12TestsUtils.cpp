@@ -41,7 +41,7 @@ void testTinyGradientNumeric(DataSet xorData) {
 
          std::vector<double> weights = std::vector<double>(tinyNN.getNumberWeights());
 
-        for (int i = 0; i < weights.size(); i++) {
+        for (int i = 0; i < weights.size(); ++i) {
             //give the test weights a spread of positive and negative values
             weights[i] = (-1 * (i%2)) * 0.05 * i;
         }

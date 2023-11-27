@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <random>
 #include <exception>
+#include <memory>
 
 NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenLayerSizes, int outputLayerSize, LossFunction lossFunc)
     : lossFunction(lossFunc), numberWeights(0) {
@@ -46,7 +47,7 @@ NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenL
         std::vector<Node> currentLayer;
         //currentLayer.reserve(layerSize);
         for (int j = 0; j < layerSize; ++j) {
-            currentLayer.push_back(Node(layer, j, nodeType, activationType));
+            currentLayer.push_back(std::move(Node(layer, j, nodeType, activationType)));
         }
 
         layers.push_back(std::move(currentLayer));
@@ -83,6 +84,11 @@ std::vector<double> NeuralNetwork::getWeights() const {
 }
 
 void NeuralNetwork::setWeights(std::vector<double>& newWeights) {
+    printf("SetWeights Before: ");
+    for( double x : newWeights ) {
+        printf("%g ", x);
+    }
+    printf("\n");
     if (numberWeights != newWeights.size()) {
         throw std::runtime_error("Could not setWeights because the number of new weights: " + std::to_string(newWeights.size()) + " was not equal to the number of weights in the NeuralNetwork: " + std::to_string(numberWeights));
     }
@@ -120,7 +126,7 @@ void NeuralNetwork::connectFully() { // TODO: TEST!!!
     for (size_t layer = 0; layer < layers.size() - 1; ++layer) {
         for (Node& inputNode : layers[layer]) {
             for (Node& outputNode : layers[layer + 1]) {
-                Edge newEdge = Edge(&inputNode, &outputNode);
+                std::shared_ptr<Edge> newEdge = std::make_shared<Edge>(&inputNode, &outputNode);
                 inputNode.addOutgoingEdge(newEdge);
                 outputNode.addIncomingEdge(newEdge);
                 numberWeights++;
@@ -140,7 +146,7 @@ void NeuralNetwork::connectNodes(int inputLayer, int inputNumber, int outputLaye
 
     Node* inputNode = &layers[inputLayer][inputNumber];
     Node* outputNode = &layers[outputLayer][outputNumber];
-    Edge newEdge = Edge(inputNode, outputNode);
+    std::shared_ptr<Edge> newEdge = std::make_shared<Edge>(inputNode, outputNode);
     inputNode->addOutgoingEdge(newEdge);
     outputNode->addIncomingEdge(newEdge);
     ++numberWeights;
@@ -152,12 +158,12 @@ void NeuralNetwork::initializeRandomly(double bias) {
     std::normal_distribution<double> distribution(0.0, 1.0);
 
     for (auto& layer : layers) {
-        for (Node node : layer) {
+        for (Node& node : layer) {
             double fanIn = node.getInputEdges().size();
             double variance = fanIn > 0 ? 1.0 / std::sqrt(fanIn) : 1.0;
 
-            for (Edge edge : node.getInputEdges()) {
-                edge.weight = distribution(generator) * variance;
+            for (std::shared_ptr<Edge>& edge : node.getInputEdges()) {
+                edge->weight = distribution(generator) * variance;
                 
             }
 
@@ -167,21 +173,26 @@ void NeuralNetwork::initializeRandomly(double bias) {
 }
 
 double NeuralNetwork::forwardPass(const Instance& instance) {
-    reset();  // Reset the network before the forward pass
+    //reset();  // Reset the network before the forward pass
 
     // 1. Set input values to the neural network
     if (layers[0].size() != instance.inputs.size()) {
         throw std::runtime_error("Mismatch between network input layer size and instance input size.");
     }
+    printf("Instance Input: ");
     for (size_t i = 0; i < layers[0].size(); ++i) {
         // Directly assign the input values to the preActivationValue of input nodes
         layers[0][i].preActivationValue = instance.inputs[i];
+        printf("%g ",instance.inputs[i] );
     }
+    printf("\n");
 
     // 2. Call forward propagation on each node
-    for (auto& layer : layers) {
-        for (auto& node : layer) {
-            node.propagateForward();
+    for (size_t i = 0; i < layers.size(); ++i) {
+    //for (auto& layer : layers) {
+        for (size_t j = 0; j < layers[i].size(); ++j) {
+        //for (auto& node : layer) {
+            layers[i][j].propagateForward();
         }
     }
 
@@ -189,7 +200,7 @@ double NeuralNetwork::forwardPass(const Instance& instance) {
     // The output layer calculations
     int outputLayerIndex = layers.size() - 1;
     const std::vector<Node> outputLayer = layers[outputLayerIndex];
-    const std::vector<double>& expectedOutputs = instance.expectedOutputs;
+    const std::vector<double> expectedOutputs = instance.expectedOutputs;
 
     double outputSum = 0;
     printf("OutputSum: ");
@@ -197,7 +208,7 @@ double NeuralNetwork::forwardPass(const Instance& instance) {
         // Just sum up the outputs
         for (const auto& node : outputLayer) {
             outputSum += node.postActivationValue;
-            printf("%lf ", outputSum);
+            printf("%g ", outputSum);
         }
         printf("\n");
     }
@@ -374,9 +385,11 @@ std::vector<double> NeuralNetwork::getNumericGradient(const Instance& instance) 
         //testWeights[i] = currentWeights[i];
         printf("Numeric Gradient: ");
         for (double g : numericGradient) {
-            printf("%lf ", g);
+            printf("%g ", g);
         }
         printf("\n");
+
+        //testWeights[i] = currentWeights[i];
     }
 
     // Reset the weights to their original values

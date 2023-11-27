@@ -27,12 +27,12 @@ bool vectorsCloseEnough(std::vector<double> v1, std::vector<double> v2) {
 bool gradientsCloseEnough(std::vector<double> g1, std::vector<double> g2) {
     printf("G1: ");
     for (double g : g1) {
-        printf("%lf ", g);
+        printf("%g ", g);
     }
     printf("\n");
     printf("G2: ");
     for (double g : g2) {
-        printf("%lf ", g);
+        printf("%g ", g);
     }
     printf("\n");
     double relativeError = Vector::norm(Vector::subtractVector(g1, g2)) / std::max(Vector::norm(g1), Vector::norm(g2));
@@ -40,17 +40,17 @@ bool gradientsCloseEnough(std::vector<double> g1, std::vector<double> g2) {
     if (relativeError >= 1e-4) {
         Log::error("relativeError bad: " + std::to_string(relativeError));
         for (int i = 0; i < g1.size(); ++i) {
-            Log::error("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
+            Log::error("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(fabs(g1[i] - g2[i])));
         }
     } else if (relativeError >= 1e-5) {
         Log::warning("relativeError probably bad: " + std::to_string(relativeError));
         for (int i = 0; i < g1.size(); ++i) {
-            Log::trace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
+            Log::trace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(fabs(g1[i] - g2[i])));
         }
     } else if (relativeError >= 1e-7) {
         Log::debug("relativeError might be bad: " + std::to_string(relativeError));
         for (int i = 0; i < g1.size(); ++i) {
-            Log::trace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(abs(g1[i] - g2[i])));
+            Log::trace("\tg1[" + std::to_string(i) + "]: " + std::to_string(g1[i]) + ", g2[" + std::to_string(i) + "]: " + std::to_string(g2[i]) + ", difference: " + std::to_string(fabs(g1[i] - g2[i])));
         }
     }
     return relativeError <= 1e-5;

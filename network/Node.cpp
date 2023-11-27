@@ -8,6 +8,7 @@
 #include "Edge.h"
 #include "Node.h"
 #include "../util/Log.h"
+#include <memory>
 
 // Node constructor implementation
 Node::Node(int layerValue, int numberValue, NodeType type, ActivationType actType)
@@ -23,37 +24,31 @@ void Node::reset() {
     activationDerivative = 0;
     delta = 0;
     biasDelta = 0;
-    for (Edge edge : inputEdges) {
-        edge.weightDelta = 0;
+    for (std::shared_ptr<Edge>& edge : inputEdges) {
+        edge->weightDelta = 0;
     }
 }
 
-void Node::addOutgoingEdge(Edge outgoingEdge) {
-    if (&outgoingEdge != NULL) {
-        outputEdges.push_back(outgoingEdge);
-        Log::trace("Node " + toString() + " added outgoing edge to Node " + outgoingEdge.outputNode->toString());
-    }
-    else {
-        throw std::invalid_argument("Cannot add a null outgoing edge.");
-    }
+void Node::addOutgoingEdge(std::shared_ptr<Edge> outgoingEdge) {
+    outputEdges.push_back(outgoingEdge);
+    Log::trace("Node " + toString() + " added outgoing edge to Node " + outgoingEdge->outputNode->toString());
 }
 
-void Node::addIncomingEdge(Edge incomingEdge) {
-    if (&incomingEdge != nullptr) {
-        inputEdges.push_back(incomingEdge);
-        Log::trace("Node " + toString() + " added incoming edge to Node " + incomingEdge.outputNode->toString());
-    }
-    else {
-        throw std::invalid_argument("Cannot add a null incoming edge.");
-    }
+void Node::addIncomingEdge(std::shared_ptr<Edge> incomingEdge) {
+    inputEdges.push_back(incomingEdge);
+    Log::trace("Node " + toString() + " added incoming edge to Node " + incomingEdge->outputNode->toString());
 }
 
 void Node::propagateForward() {
-    for (Edge edge : inputEdges) {
-        preActivationValue += edge.getWeight() * edge.inputNode->postActivationValue;
+    //for (Edge edge : inputEdges) {
+    for (size_t i = 0; i < inputEdges.size(); ++i) {
+        printf("Edge: %s %g %g\n", inputEdges[i]->toString().c_str(), inputEdges[i]->weight, inputEdges[i]->inputNode->postActivationValue);
+        preActivationValue += inputEdges[i]->weight * inputEdges[i]->inputNode->postActivationValue;
     }
-    printf("Bias %lf\n", bias);
+    printf("Bias %g\n", bias);
+    printf("PreAct: %g\n", preActivationValue);
     preActivationValue += bias;
+    printf("PreAct: %g\n", preActivationValue);
 
     switch (activationType) {
     case ActivationType::LINEAR:
@@ -71,17 +66,23 @@ void Node::propagateForward() {
 }
 
 void Node::applyLinear() {
+    printf("PreAct: %g\n", preActivationValue);
     postActivationValue = preActivationValue;
+    printf("PostAct: %g\n", postActivationValue);
     activationDerivative = 1;
 }
 
 void Node::applySigmoid() {
+    printf("PreAct: %g\n", preActivationValue);
     postActivationValue = 1.0 / (1.0 + exp(-preActivationValue));
+    printf("PostAct: %g\n", postActivationValue);
     activationDerivative = postActivationValue * (1 - postActivationValue);
 }
 
 void Node::applyTanh() {
+    printf("PreAct: %g\n", preActivationValue);
     postActivationValue = tanh(preActivationValue);
+    printf("PostAct: %g\n", postActivationValue);
     activationDerivative = 1 - (postActivationValue * postActivationValue);
 }
 
@@ -94,8 +95,8 @@ int Node::getWeights(int position, std::vector<double>& weights) const {
         weightCount = 1;
     }
 
-    for (Edge edge : outputEdges) {
-        weights[position + weightCount] = edge.weight;
+    for (std::shared_ptr<Edge> edge : outputEdges) {
+        weights[position + weightCount] = edge->weight;
         weightCount++;
     }
     
@@ -111,8 +112,8 @@ int Node::getDeltas(int position, std::vector<double>& deltas) {
         deltaCount = 1;
     }
 
-    for (Edge edge : outputEdges) {
-        deltas[position + deltaCount] = edge.weightDelta;
+    for (std::shared_ptr<Edge>& edge : outputEdges) {
+        deltas[position + deltaCount] = edge->weightDelta;
         deltaCount++;
     }
 
@@ -129,8 +130,16 @@ int Node::setWeights(int position, std::vector<double>& weights) {
     }
 
     for (size_t i = 0; i < outputEdges.size(); ++i) {
-        outputEdges[i].weight = weights[position + weightCount];
+        printf("%s edge weight set to %g\n", outputEdges[i]->toString().c_str(), weights[position + weightCount]);
+        outputEdges[i]->weight = weights[position + weightCount];
+        printf("%s %g\n", outputEdges[i]->toString().c_str(), outputEdges[i]->weight);
         weightCount++;
+    }
+    for (std::shared_ptr<Edge>& edge : outputEdges) {
+        printf("Output Edge: %s %g\n", edge->toString().c_str(), edge->weight);
+    }
+    for (std::shared_ptr<Edge>& edge : inputEdges) {
+        printf("Input Edge: %s %g\n", edge->toString().c_str(), edge->weight);
     }
     return weightCount;
 }
@@ -154,8 +163,8 @@ void Node::propagateBackward() {
     biasDelta += deltaPushBack;
 
     // Call propagateBackward for all incomingEdges
-    for (Edge edge : inputEdges) {
-        edge.propagateBackward(deltaPushBack);
+    for (std::shared_ptr<Edge>& edge : inputEdges) {
+        edge->propagateBackward(deltaPushBack);
     }
 }
 
@@ -165,12 +174,12 @@ void Node::initializeWeightsAndBias(double newBias) {
     std::default_random_engine generator;
     std::normal_distribution<double> distribution(0.0, 1.0);
 
-    for (Edge edge : inputEdges) {
-        edge.weight = distribution(generator) / std::sqrt(N);
+    for (std::shared_ptr<Edge>& edge : inputEdges) {
+        edge->weight = distribution(generator) / std::sqrt(N);
     }
 }
 
-std::vector<Edge> Node::getInputEdges() {
+std::vector<std::shared_ptr<Edge>> Node::getInputEdges() {
     return inputEdges;
 }
 
