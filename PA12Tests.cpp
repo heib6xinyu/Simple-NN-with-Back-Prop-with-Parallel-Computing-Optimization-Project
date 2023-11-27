@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
     DataSet xorData =   DataSet("xor data", "./datasets/xor.txt");
     //test the numeric gradient calculations on a small
     //neural network
-    testTinyGradientNumeric(xorData);
+    //testTinyGradientNumeric(xorData);
 
     //test the numeric gradient calculations on a small
     //neural network
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     //neural network by comparing it to the
     //numeric gradient multiple times with random
     //starting weights
-    //testTinyGradientsMultiInstance(xorData,  LossFunction::NONE);
+    testTinyGradientsMultiInstance(xorData,  LossFunction::NONE);
 
 
     //this tests calculation of of the gradient via

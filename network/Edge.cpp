@@ -20,7 +20,8 @@ void Edge::propagateBackward(double delta) {
 
     // 1. set the weightDelta to be the updated delta of its outputNode * postActivationValue of inputNode
     weightDelta = delta * inputNode->postActivationValue;
-
+    
+    //printf("%s\tWeigtt Delta: %g\tdelta:%g\tpostAct:%g\n", toString().c_str(), weightDelta, delta, inputNode->postActivationValue);
     // 2. the delta of the inputNode to be the product of weight and the updated delta of the its outputNode.
     // += because if multiple edges come into the same inputNode, add them up
     inputNode->delta += weight * delta;

@@ -22,7 +22,7 @@
  * do this with random waits to be quite sure we've implemented both
  * methods correctly.
  */
-int NUMBER_REPEATS = 100;
+int NUMBER_REPEATS = 101;
 
 /**
  * This tests calculation of the numeric gradient for
@@ -262,8 +262,8 @@ void testTinyGradients(DataSet dataSet, LossFunction lossFunction) {
 
                 tinyNN.setWeights(weights);
 
-                 std::vector<double> numericGradient = tinyNN.getNumericGradient(instance);
-                 std::vector<double> backpropGradient = tinyNN.getGradient(instance);
+                std::vector<double> numericGradient = tinyNN.getNumericGradient(instance);
+                std::vector<double> backpropGradient = tinyNN.getGradient(instance);
                 if (! gradientsCloseEnough(numericGradient, backpropGradient)) {
                     throw std::runtime_error("testTinyGradients failed on repeat " + std::to_string(repeat) + " and instance" + std::to_string(i) + "!");
                 }
@@ -382,7 +382,7 @@ void testNetworkOnInstances(NeuralNetwork nn, std::vector<Instance> instances, s
 
 void testTinyGradientsMultiInstance(DataSet dataSet, LossFunction lossFunction) {
     try {
-        NeuralNetwork tinyNN =  createTinyNeuralNetwork(dataSet, lossFunction);
+        NeuralNetwork tinyNN = createTinyNeuralNetwork(dataSet, lossFunction);
 
         //test all the XOR instances
 
