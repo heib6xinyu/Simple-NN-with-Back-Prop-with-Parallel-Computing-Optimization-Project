@@ -84,11 +84,11 @@ std::vector<double> NeuralNetwork::getWeights() const {
 }
 
 void NeuralNetwork::setWeights(std::vector<double>& newWeights) {
-    printf("SetWeights: ");
-    for(double x : newWeights) {
-        printf("%g ", x);
-    }
-    printf("\n");
+    //printf("SetWeights: ");
+    //for(double x : newWeights) {
+    //    printf("%g ", x);
+    //}
+    //printf("\n");
     if (numberWeights != newWeights.size()) {
         throw std::runtime_error("Could not setWeights because the number of new weights: " + std::to_string(newWeights.size()) + " was not equal to the number of weights in the NeuralNetwork: " + std::to_string(numberWeights));
     }
@@ -102,11 +102,11 @@ void NeuralNetwork::setWeights(std::vector<double>& newWeights) {
             }
         }
     }
-    printf("Weights: ");
-    for(double x : getWeights()) {
-        printf("%g ", x);
-    }
-    printf("\n");
+    //printf("Weights: ");
+    //for(double x : getWeights()) {
+    //    printf("%g ", x);
+    //}
+    //printf("\n");
 }
 
 std::vector<double> NeuralNetwork::getDeltas() const {
@@ -396,14 +396,14 @@ std::vector<double> NeuralNetwork::getNumericGradient(const std::vector<Instance
         testWeights[i] = currentWeights[i] + H;
         setWeights(testWeights);
         double outputPlusH = forwardPass(instances);
-        printf("OutputPlus: %g\n", outputPlusH-1);
+        //printf("OutputPlus: %g\n", outputPlusH-1);
         
 
         // Decrement weight by H
         testWeights[i] = currentWeights[i] - H;
         setWeights(testWeights);
         double outputMinusH = forwardPass(instances);
-        printf("OutputMinus: %g\n", outputMinusH-1);
+        //printf("OutputMinus: %g\n", outputMinusH-1);
         
 
         // Calculate the gradient

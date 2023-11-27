@@ -360,18 +360,16 @@ void testLargeGradients(DataSet dataSet, LossFunction lossFunction) {
 
 }
 
-void testNetworkOnInstances(NeuralNetwork nn, std::vector<Instance> instances, std::string description) {
+void testNetworkOnInstances(NeuralNetwork& nn, std::vector<Instance>& instances, std::string description) {
      std::vector<double> weights = std::vector<double>(nn.getNumberWeights());
-
     for (int j = 0; j < weights.size(); j++) {
         //give the test weights some random positive and negative values
         weights[j] = (random_double() * 2.0) - 1.0;
     }
 
     nn.setWeights(weights);
-
-     std::vector<double> numericGradient = nn.getNumericGradient(instances);
-     std::vector<double> backpropGradient = nn.getGradient(instances);
+    std::vector<double> numericGradient = nn.getNumericGradient(instances);
+    std::vector<double> backpropGradient = nn.getGradient(instances);
 
     if (! gradientsCloseEnough(numericGradient, backpropGradient)) {
         throw   std::runtime_error(description + " failed!");
@@ -386,10 +384,10 @@ void testTinyGradientsMultiInstance(DataSet dataSet, LossFunction lossFunction) 
 
         //test all the XOR instances
 
-        std::vector<Instance> instances;
+        //std::vector<Instance> instances;
         for (int repeat = 0; repeat < NUMBER_REPEATS; repeat++) {
             for (int i = 0; i < dataSet.getNumberInstances(); i++) {
-                instances = dataSet.getInstances(0, 2);
+                std::vector<Instance> instances = dataSet.getInstances(0, 2);
                 testNetworkOnInstances(tinyNN, instances, "testTinyGradientsMultiInstance, repeat " + std::to_string(repeat) + ", instances 0, 2");
 
                 instances = dataSet.getInstances(1, 2);
