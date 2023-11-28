@@ -1,0 +1,1 @@
+./PA13GD xor tiny minibatch l2_norm 20 0.1 0.01
