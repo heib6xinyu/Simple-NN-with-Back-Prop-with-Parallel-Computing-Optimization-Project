@@ -196,33 +196,6 @@ double NeuralNetwork::forwardPass(const Instance& instance) {
             layers[outputLayerIndex][i].delta = 1;
         }
     }
-    else if (lossFunction == LossFunction::L1_NORM) {
-        // Iterate over the output nodes to calculate the L1 loss and the deltas
-        for (size_t i = 0; i < layers[outputLayerIndex].size(); ++i) {
-            double error = expectedOutputs[i] - layers[outputLayerIndex][i].postActivationValue;
-            outputSum += std::abs(error);
-            // Set the delta for the output node
-            // The sign of the error determines the direction of the delta
-            layers[outputLayerIndex][i].delta = (error > 0) ? -1 : 1;
-        }
-    }
-    else if (lossFunction == LossFunction::L2_NORM) {
-        // Calculate the L2 norm loss and set deltas
-        for (size_t i = 0; i < layers[outputLayerIndex].size(); ++i) {
-            double error = expectedOutputs[i] - layers[outputLayerIndex][i].postActivationValue;
-            outputSum += error * error;
-        }
-        outputSum = std::sqrt(outputSum);
-        // Set the delta for each output node based on the derivative of L2 norm
-        for (size_t i = 0; i < layers.back().size(); ++i) {
-            if (outputSum != 0) {  // To avoid division by zero
-                layers[outputLayerIndex][i].delta = -1 * (expectedOutputs[i] - layers[outputLayerIndex][i].postActivationValue) / outputSum;
-            }
-            else {
-                layers[outputLayerIndex][i].delta = 0;
-            }
-        }
-    }
     else if (lossFunction == LossFunction::SVM) {
         // Implement SVM loss
         int expectedIndex = static_cast<int>(expectedOutputs[0]);

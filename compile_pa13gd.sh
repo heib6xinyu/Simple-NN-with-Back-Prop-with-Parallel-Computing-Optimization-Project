@@ -1,1 +1,0 @@
-g++ data/DataSet.cpp data/Instance.cpp network/*.cpp util/*.cpp PA13GradientDescent.cpp -o PA13GD -std=c++11
