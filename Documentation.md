@@ -86,13 +86,112 @@ After completing these steps, you should be able to compile C++ programs using `
 ## Usage
 
 ### Quick Start Guide
-Simple example to get the project running.
+
+Getting started with our Neural Network Project is straightforward and requires only a few steps to see the project in action. Below is a quick guide to compiling and running basic tests and examples using the provided shell scripts.
+
+#### Compiling the Project
+
+We have provided several shell scripts to compile different parts of the project. Depending on what you want to test or demonstrate, you can use one of the following scripts to compile the corresponding part of the project:
+
+1. **Compile Basic Tests**: To compile the basic tests, run the following command in your terminal:
+
+   ```bash
+   ./compile_basictests.sh
+   ```
+
+2. **Compile PA11 Tests**: To compile PA11 tests, use:
+
+   ```bash
+   ./compile_pa11tests.sh
+   ```
+
+3. **Compile PA12 Tests**: For compiling PA12 tests, execute:
+
+   ```bash
+   ./compile_pa12tests.sh
+   ```
+
+4. **Compile PA14 Gradient Descent**: If you want to compile the PA14 gradient descent part, run:
+
+   ```bash
+   ./compile_pa14gd.sh
+   ```
+
+5. **Compile All Tests**: To compile all tests at once, use:
+
+   ```bash
+   ./compile_tests.sh
+   ```
+
+Each script will compile the respective parts of the project and prepare them for execution.
+
+#### Running the Project
+
+After compilation, you can run the corresponding parts of the project to see them in action. Use the following scripts to run the different sections:
+
+1. **Run Basic Tests**:
+
+   ```bash
+   ./run_basictests.sh
+   ```
+
+2. **Run PA11 Tests**:
+
+   ```bash
+   ./run_pa11tests.sh
+   ```
+
+3. **Run PA12 Tests**:
+
+   ```bash
+   ./run_pa12tests.sh
+   ```
+
+4. **Run PA14 Gradient Descent**:
+
+   ```bash
+   ./run_pa14gd.sh
+   ```
+
+Each script executes the compiled binaries and demonstrates the functionalities of the respective parts of the project. These scripts provide a hands-on way to observe the neural network’s behavior, training process, and the results of different configurations and optimizations.
 
 ### Detailed Usage
-Explanation of how to use the main features with code snippets and examples.
 
-### Command Line Interface
-If applicable, document the CLI commands and arguments.
+To run the neural network gradient descent with specific parameters, our program offers a flexible command-line interface. Below is an example command and a detailed explanation of each parameter:
+
+#### Command Format
+
+```bash
+./PA14GD <data set> <gradient type> <batch size> <loss function> <epochs> <bias> <learning rate> <mu> <adaptive technique> <decay rate> <epsilon> <beta1> <beta2> <layer sizes...>
+```
+
+#### Example Usage
+
+```bash
+./PA14GD mushroom minibatch 20 softmax 100 0.1 0.01 0.9 adam 0.96 0.0000001 0.9 0.999 10 10
+```
+
+This command runs gradient descent on the mushroom dataset with the following configuration:
+
+- **Data Set**: `mushroom` - Specifies the mushroom dataset as input.
+- **Gradient Type**: `minibatch` - Uses minibatch gradient descent.
+- **Batch Size**: `20` - Sets the batch size to 20.
+- **Loss Function**: `softmax` - Employs the softmax loss function for the training process.
+- **Epochs**: `100` - The model will train for 100 epochs.
+- **Bias**: `0.1` - Initializes node biases to 0.1.
+- **Learning Rate**: `0.01` - Sets the learning rate to 0.01.
+- **Mu**: `0.9` - Specifies the mu (momentum) parameter for the gradient descent.
+- **Adaptive Technique**: `adam` - Uses the Adam optimization algorithm.
+- **Decay Rate**: `0.96` - Sets the decay rate for the optimizer to 0.96.
+- **Epsilon (ϵ)**: `0.0000001` - The epsilon parameter for preventing division by zero in the Adam optimizer.
+- **Beta1**: `0.9` - Sets the Beta1 parameter for the Adam optimizer.
+- **Beta2**: `0.999` - Sets the Beta2 parameter for the Adam optimizer.
+- **Layer Sizes**: `10 10` - Configures the network with two hidden layers, each containing 10 nodes.
+
+#### Explanation
+
+This command demonstrates how to run the neural network with a specific set of hyperparameters and configurations. You can adjust these parameters according to your requirements to experiment with different network behaviors and training dynamics. The flexibility in parameter specification allows for extensive experimentation and fine-tuning, catering to various data characteristics and training needs.
+
 
 ## Code Documentation
 
