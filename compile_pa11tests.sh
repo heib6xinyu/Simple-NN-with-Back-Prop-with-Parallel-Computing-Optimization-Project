@@ -1,0 +1,1 @@
+g++ data/Dataset.cpp data/Instance.cpp network/*.cpp util/*.cpp PA11Tests.cpp -o PA11Tests -std=c++11

@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include "ActivationType.h"
+#include <memory>
 
 // Forward declaration of Edge class to avoid circular dependencies
 class Edge;
@@ -22,18 +24,13 @@ enum class NodeType {
 
 class Node {
 private:
-    int layer;
-    int number;
     NodeType nodeType;
     ActivationType activationType;
-    double preActivationValue;
-    double postActivationValue;
-    double delta;
     double activationDerivative;
     double bias;
     double biasDelta;
-    std::vector<Edge*> inputEdges;
-    std::vector<Edge*> outputEdges;
+    std::vector<std::shared_ptr<Edge>> inputEdges;
+    std::vector<std::shared_ptr<Edge>> outputEdges;
 
     // Helper methods for activation functions
     void applyLinear();
@@ -46,23 +43,25 @@ private:
 public:
     // Constructor and destructor
     Node(int layerValue, int numberValue, NodeType type, ActivationType actType);
-    ~Node();
 
     // Method to reset node state
     void reset();
 
     // Edge management
-    void addOutgoingEdge(Edge* outgoingEdge);
-    void addIncomingEdge(Edge* incomingEdge);
+    void addOutgoingEdge(std::shared_ptr<Edge> outgoingEdge);
+    void addIncomingEdge(std::shared_ptr<Edge> incomingEdge);
 
     // Propagation methods
     void propagateForward();
     void propagateBackward();
 
     // Weights and deltas management
-    int getWeights(int position, std::vector<double>& weights);
+    int getWeights(int position, std::vector<double>& weights) const;
     int getDeltas(int position, std::vector<double>& deltas);
-    int setWeights(int position, const std::vector<double>& weights);
+    int setWeights(int position, std::vector<double>& weights);
+    void setBias(double bias);
+
+    std::vector<std::shared_ptr<Edge>> getInputEdges(); 
 
     // Initialization of weights and bias
     void initializeWeightsAndBias(double newBias);
@@ -70,6 +69,12 @@ public:
     // Utility methods for printing node details
     std::string toString() const;
     std::string toDetailedString() const;
+
+    int layer;
+    int number;
+    double delta;
+    double postActivationValue;
+    double preActivationValue;
 };
 
 #endif // NODE_H

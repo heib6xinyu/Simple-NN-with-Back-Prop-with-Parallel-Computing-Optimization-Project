@@ -6,7 +6,7 @@
 #include "Node.h"  // Make sure this path is correct
 #include "Edge.h"  // Make sure this path is correct
 #include "LossFunction.h"  // Enum or class needs to be defined
-#include "data/Instance.h" // Forward declare Instance if it's a class
+#include "../data/Instance.h" // Forward declare Instance if it's a class
 
 class NeuralNetwork {
 private:
@@ -21,7 +21,7 @@ public:
     int getNumberWeights() const;
     void reset();
     std::vector<double> getWeights() const;
-    void setWeights(const std::vector<double>& newWeights);
+    void setWeights(std::vector<double>& newWeights);
     std::vector<double> getDeltas() const;
     void connectFully();
     void connectNodes(int inputLayer, int inputNumber, int outputLayer, int outputNumber);

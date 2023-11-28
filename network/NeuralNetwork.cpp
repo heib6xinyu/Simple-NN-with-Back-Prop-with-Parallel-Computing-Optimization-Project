@@ -1,18 +1,20 @@
 #include "NeuralNetwork.h"
 #include "Node.h"  
-#include "util/Log.h"
-#include "data/Instance.h"
+#include "../util/Log.h"
+#include "../data/Instance.h"
 #include "LossFunction.h"
 #include <vector>
 #include <string>
 #include <stdexcept>
 #include <random>
+#include <exception>
+#include <memory>
 
 NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenLayerSizes, int outputLayerSize, LossFunction lossFunc)
     : lossFunction(lossFunc), numberWeights(0) {
     // The number of layers in the neural network is 2 plus the number of hidden layers
     int totalLayers = hiddenLayerSizes.size() + 2;
-    layers.reserve(numLayers);
+    //layers.reserve(totalLayers);
 
     Log::info("Creating a neural network with " + std::to_string(hiddenLayerSizes.size()) + " hidden layers.");
 
@@ -43,9 +45,9 @@ NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenL
 
         // Create and add nodes to the current layer
         std::vector<Node> currentLayer;
-        currentLayer.reserve(layerSize);
+        //currentLayer.reserve(layerSize);
         for (int j = 0; j < layerSize; ++j) {
-            currentLayer.emplace_back(layer, j, nodeType, activationType);
+            currentLayer.push_back(std::move(Node(layer, j, nodeType, activationType)));
         }
 
         layers.push_back(std::move(currentLayer));
@@ -65,40 +67,46 @@ void NeuralNetwork::reset() {
 }
 
 std::vector<double> NeuralNetwork::getWeights() const {
-    std::vector<double> weights;
-    weights.reserve(numberWeights);
-
+    std::vector<double> weights(numberWeights);
     int position = 0;
-    for (const auto& layer : layers) {
-        for (const auto& node : layer) {
-            int nWeights = node.getWeights(position, weights);
+    //for (std::vector<Node> layer : layers) {
+    for (size_t i = 0; i < layers.size(); ++i) {
+        for (size_t j = 0; j < layers[i].size(); ++j) {
+            const Node& n = layers[i][j];
+            int nWeights = n.getWeights(position, weights);
             position += nWeights;
-
             if (position > numberWeights) {
                 throw std::runtime_error("The numberWeights field of the NeuralNetwork was less than the actual number of weights and biases.");
             }
         }
     }
-
     return weights;
 }
 
-void NeuralNetwork::setWeights(const std::vector<double>& newWeights) {
+void NeuralNetwork::setWeights(std::vector<double>& newWeights) {
+    //printf("SetWeights: ");
+    //for(double x : newWeights) {
+    //    printf("%g ", x);
+    //}
+    //printf("\n");
     if (numberWeights != newWeights.size()) {
         throw std::runtime_error("Could not setWeights because the number of new weights: " + std::to_string(newWeights.size()) + " was not equal to the number of weights in the NeuralNetwork: " + std::to_string(numberWeights));
     }
-
     int position = 0;
     for (auto& layer : layers) {
         for (auto& node : layer) {
             int nWeights = node.setWeights(position, newWeights);
             position += nWeights;
-
             if (position > numberWeights) {
                 throw std::runtime_error("The numberWeights field of the NeuralNetwork was (" + std::to_string(numberWeights) + ") but when setting the weights there were more hidden nodes and edges than numberWeights. This should not happen unless numberWeights is not being updated correctly.");
             }
         }
     }
+    //printf("Weights: ");
+    //for(double x : getWeights()) {
+    //    printf("%g ", x);
+    //}
+    //printf("\n");
 }
 
 std::vector<double> NeuralNetwork::getDeltas() const {
@@ -106,7 +114,7 @@ std::vector<double> NeuralNetwork::getDeltas() const {
 
     int position = 0;
     for (const auto& layer : layers) {
-        for (const auto& node : layer) {
+        for (Node node : layer) {
             int nDeltas = node.getDeltas(position, deltas);
             position += nDeltas;
 
@@ -119,18 +127,18 @@ std::vector<double> NeuralNetwork::getDeltas() const {
     return deltas;
 }
 
-void NeuralNetwork::connectFully() {
+void NeuralNetwork::connectFully() { // TODO: TEST!!!
     for (size_t layer = 0; layer < layers.size() - 1; ++layer) {
         for (Node& inputNode : layers[layer]) {
             for (Node& outputNode : layers[layer + 1]) {
-                Edge* newEdge = new Edge(&inputNode, &outputNode);
+                std::shared_ptr<Edge> newEdge = std::make_shared<Edge>(&inputNode, &outputNode);
                 inputNode.addOutgoingEdge(newEdge);
                 outputNode.addIncomingEdge(newEdge);
-                ++numberWeights;
+                numberWeights++;
+                Log::trace("Number of weights now: " + std::to_string(numberWeights));
             }
         }
     }
-    Log::trace("Number of weights now: " + std::to_string(numberWeights));
 }
 
 void NeuralNetwork::connectNodes(int inputLayer, int inputNumber, int outputLayer, int outputNumber) {
@@ -143,7 +151,7 @@ void NeuralNetwork::connectNodes(int inputLayer, int inputNumber, int outputLaye
 
     Node* inputNode = &layers[inputLayer][inputNumber];
     Node* outputNode = &layers[outputLayer][outputNumber];
-    Edge* newEdge = new Edge(inputNode, outputNode);
+    std::shared_ptr<Edge> newEdge = std::make_shared<Edge>(inputNode, outputNode);
     inputNode->addOutgoingEdge(newEdge);
     outputNode->addIncomingEdge(newEdge);
     ++numberWeights;
@@ -159,8 +167,9 @@ void NeuralNetwork::initializeRandomly(double bias) {
             double fanIn = node.getInputEdges().size();
             double variance = fanIn > 0 ? 1.0 / std::sqrt(fanIn) : 1.0;
 
-            for (Edge* edge : node.getInputEdges()) {
-                edge->setWeight(distribution(generator) * variance);
+            for (std::shared_ptr<Edge>& edge : node.getInputEdges()) {
+                edge->weight = distribution(generator) * variance;
+                
             }
 
             node.setBias(bias);
@@ -181,105 +190,97 @@ double NeuralNetwork::forwardPass(const Instance& instance) {
     }
 
     // 2. Call forward propagation on each node
-    for (auto& layer : layers) {
-        for (auto& node : layer) {
-            node.propagateForward();
+    for (size_t i = 0; i < layers.size(); ++i) {
+    //for (auto& layer : layers) {
+        for (size_t j = 0; j < layers[i].size(); ++j) {
+        //for (auto& node : layer) {
+            layers[i][j].propagateForward();
         }
     }
 
 
     // The output layer calculations
     int outputLayerIndex = layers.size() - 1;
-    const std::vector<Node>& outputLayer = layers[outputLayerIndex];
-    const std::vector<double>& expectedOutputs = instance.expectedOutputs;
+    const std::vector<double> expectedOutputs = instance.expectedOutputs;
 
     double outputSum = 0;
     if (lossFunction == LossFunction::NONE) {
         // Just sum up the outputs
-        for (const auto& node : outputLayer) {
-            outputSum += node.postActivationValue;
+        for (size_t i = 0; i < layers[outputLayerIndex].size(); ++i) {
+            outputSum += layers[outputLayerIndex][i].postActivationValue;
+            layers[outputLayerIndex][i].delta = 1;
         }
     }
     else if (lossFunction == LossFunction::L1_NORM) {
         // Iterate over the output nodes to calculate the L1 loss and the deltas
-        for (size_t number = 0; number < outputLayer.size(); ++number) {
-            Node& outputNode = outputLayer[number];
-            double error = expectedOutputs[number] - outputNode.postActivationValue;
+        for (size_t i = 0; i < layers[outputLayerIndex].size(); ++i) {
+            double error = expectedOutputs[i] - layers[outputLayerIndex][i].postActivationValue;
             outputSum += std::abs(error);
             // Set the delta for the output node
             // The sign of the error determines the direction of the delta
-            outputNode.delta = (error > 0) ? -1 : 1;
+            layers[outputLayerIndex][i].delta = (error > 0) ? -1 : 1;
         }
     }
     else if (lossFunction == LossFunction::L2_NORM) {
         // Calculate the L2 norm loss and set deltas
-        double lossSum = 0.0;
-        for (size_t number = 0; number < layers.back().size(); ++number) {
-            Node& outputNode = layers.back()[number];
-            double error = expectedOutputs[number] - outputNode.postActivationValue;
-            lossSum += error * error;
+        for (size_t i = 0; i < layers[outputLayerIndex].size(); ++i) {
+            double error = expectedOutputs[i] - layers[outputLayerIndex][i].postActivationValue;
+            outputSum += error * error;
         }
-        double loss = std::sqrt(lossSum);
-
+        outputSum = std::sqrt(outputSum);
         // Set the delta for each output node based on the derivative of L2 norm
-        for (size_t number = 0; number < layers.back().size(); ++number) {
-            Node& outputNode = layers.back()[number];
-            if (loss != 0) {  // To avoid division by zero
-                outputNode.delta = -1 * (expectedOutputs[number] - outputNode.postActivationValue) / loss;
+        for (size_t i = 0; i < layers.back().size(); ++i) {
+            if (outputSum != 0) {  // To avoid division by zero
+                layers[outputLayerIndex][i].delta = -1 * (expectedOutputs[i] - layers[outputLayerIndex][i].postActivationValue) / outputSum;
             }
             else {
-                outputNode.delta = 0;
+                layers[outputLayerIndex][i].delta = 0;
             }
         }
-        outputSum = loss;
     }
     else if (lossFunction == LossFunction::SVM) {
         // Implement SVM loss
         int expectedIndex = static_cast<int>(expectedOutputs[0]);
-        double expectedOutput = layers.back()[expectedIndex].postActivationValue;
+        double expectedOutput = layers[outputLayerIndex][expectedIndex].postActivationValue;
         double deltaSum = 0.0;
         double hingeLossSum = 0.0;
 
-        for (size_t number = 0; number < layers.back().size(); ++number) {
-            Node& outputNode = layers.back()[number];
-            if (number != expectedIndex) {
-                double hingeLoss = std::max(0.0, outputNode.postActivationValue - expectedOutput + 1);
+        for (size_t i = 0; i < layers[outputLayerIndex].size(); ++i) {
+            if (i != expectedIndex) {
+                double hingeLoss = std::max(0.0, layers[outputLayerIndex][i].postActivationValue - expectedOutput + 1);
                 hingeLossSum += hingeLoss;
 
                 if (hingeLoss > 0) {
-                    outputNode.delta = 1;
+                    layers[outputLayerIndex][i].delta = 1;
                     deltaSum += 1;
                 }
                 else {
-                    outputNode.delta = 0;
+                    layers[outputLayerIndex][i].delta = 0;
                 }
             }
         }
 
         // Adjust delta for the expected output node
-        Node& expectedNode = layers.back()[expectedIndex];
-        expectedNode.delta = -deltaSum;
+        layers[outputLayerIndex][expectedIndex].delta = -deltaSum;
         outputSum = hingeLossSum;
     }
     else if (lossFunction == LossFunction::SOFTMAX) {
         // Implement Softmax loss
         int expectedIndex = static_cast<int>(instance.expectedOutputs[0]);
+        double expectedOutput = layers[outputLayerIndex][expectedIndex].postActivationValue;
+        double expectedExp = std::exp(expectedOutput);
         double totalExpSum = 0.0;
-        double expectedExp = 0.0;
 
         // Calculate sum of exponentials for all outputs
-        for (Node& outputNode : layers.back()) {
-            double expValue = std::exp(outputNode.postActivationValue);
-            totalExpSum += expValue;
-            if (&outputNode == &layers.back()[expectedIndex]) {
-                expectedExp = expValue;
-            }
+        for (Node& outputNode : layers[outputLayerIndex]) {
+            totalExpSum += std::exp(outputNode.postActivationValue);
         }
 
         // Calculate softmax loss and delta for each output node
-        for (Node& outputNode : layers.back()) {
-            double softmaxProb = std::exp(outputNode.postActivationValue) / totalExpSum;
-            outputNode.delta = (outputNode == layers.back()[expectedIndex]) ? (softmaxProb - 1) : softmaxProb;
+        for (int i = 0; i < layers[outputLayerIndex].size(); ++i) {
+        //for (Node& outputNode : layers[outputLayerIndex]) {
+            double softmaxProb = std::exp(layers[outputLayerIndex][i].postActivationValue) / totalExpSum;
+            layers[outputLayerIndex][i].delta = (i == expectedIndex) ? (softmaxProb - 1) : softmaxProb;
         }
 
         // Calculate the overall loss (negative log likelihood)
@@ -313,10 +314,10 @@ double NeuralNetwork::calculateAccuracy(const std::vector<Instance>& instances) 
 
         double maxOutput = -std::numeric_limits<double>::infinity();
         int predictedIndex = -1;
-        for (size_t i = 0; i < output.size(); ++i) {
+        for (int i = 0; i < output.size(); ++i) {
             if (output[i] > maxOutput) {
                 maxOutput = output[i];
-                predictedIndex = static_cast<int>(i);
+                predictedIndex = i;
             }
         }
 
@@ -325,7 +326,7 @@ double NeuralNetwork::calculateAccuracy(const std::vector<Instance>& instances) 
         }
     }
 
-    return static_cast<double>(correctCount) / static_cast<double>(totalCount);
+    return (1.0 * correctCount) / (1.0 * totalCount);
 }
 
 std::vector<double> NeuralNetwork::getOutputValues() const {
@@ -348,7 +349,10 @@ const double H = 0.0000001;
 
 std::vector<double> NeuralNetwork::getNumericGradient(const Instance& instance) {
     std::vector<double> currentWeights = getWeights();
-    std::vector<double> testWeights = currentWeights;
+    std::vector<double> testWeights = std::vector<double>(currentWeights.size(), 0.0);
+    for (size_t i = 0; i < currentWeights.size(); ++i) {
+        testWeights[i] = currentWeights[i];
+    }
     std::vector<double> numericGradient(currentWeights.size(), 0.0);
 
     for (size_t i = 0; i < currentWeights.size(); ++i) {
@@ -356,53 +360,57 @@ std::vector<double> NeuralNetwork::getNumericGradient(const Instance& instance) 
         testWeights[i] = currentWeights[i] + H;
         setWeights(testWeights);
         double outputPlusH = forwardPass(instance);
+        //printf("OutputPlus: %g\n", outputPlusH-0.5);
 
         // Decrement weight by H
         testWeights[i] = currentWeights[i] - H;
         setWeights(testWeights);
         double outputMinusH = forwardPass(instance);
-
+        //printf("OutputMinus: %g\n", outputMinusH-0.5);
         // Calculate the gradient
         numericGradient[i] = (outputPlusH - outputMinusH) / (2 * H);
 
         // Reset the weight for the next iteration
-        testWeights[i] = currentWeights[i];
+        //testWeights[i] = currentWeights[i];
+
+        //testWeights[i] = currentWeights[i];
     }
 
     // Reset the weights to their original values
     setWeights(currentWeights);
-
+    
     return numericGradient;
 }
 
 std::vector<double> NeuralNetwork::getNumericGradient(const std::vector<Instance>& instances) {
     std::vector<double> currentWeights = getWeights();
-    std::vector<double> testWeights = currentWeights;
+    std::vector<double> testWeights = std::vector<double>(currentWeights.size(), 0.0);
+    for (size_t i = 0; i < currentWeights.size(); ++i) {
+        testWeights[i] = currentWeights[i];
+    }
     std::vector<double> numericGradient(currentWeights.size(), 0.0);
 
     for (size_t i = 0; i < currentWeights.size(); ++i) {
-        double outputPlusH = 0.0;
-        double outputMinusH = 0.0;
 
         // Increment weight by H
         testWeights[i] = currentWeights[i] + H;
         setWeights(testWeights);
-        for (const auto& instance : instances) {
-            outputPlusH += forwardPass(instance);
-        }
+        double outputPlusH = forwardPass(instances);
+        //printf("OutputPlus: %g\n", outputPlusH-1);
+        
 
         // Decrement weight by H
         testWeights[i] = currentWeights[i] - H;
         setWeights(testWeights);
-        for (const auto& instance : instances) {
-            outputMinusH += forwardPass(instance);
-        }
+        double outputMinusH = forwardPass(instances);
+        //printf("OutputMinus: %g\n", outputMinusH-1);
+        
 
         // Calculate the gradient
         numericGradient[i] = (outputPlusH - outputMinusH) / (2 * H);
 
         // Reset the weight for the next iteration
-        testWeights[i] = currentWeights[i];
+        //testWeights[i] = currentWeights[i];
     }
 
     // Reset the weights to their original values
