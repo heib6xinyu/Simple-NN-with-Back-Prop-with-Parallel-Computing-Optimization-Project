@@ -314,10 +314,10 @@ double NeuralNetwork::calculateAccuracy(const std::vector<Instance>& instances) 
 
         double maxOutput = -std::numeric_limits<double>::infinity();
         int predictedIndex = -1;
-        for (size_t i = 0; i < output.size(); ++i) {
+        for (int i = 0; i < output.size(); ++i) {
             if (output[i] > maxOutput) {
                 maxOutput = output[i];
-                predictedIndex = static_cast<int>(i);
+                predictedIndex = i;
             }
         }
 
@@ -326,7 +326,7 @@ double NeuralNetwork::calculateAccuracy(const std::vector<Instance>& instances) 
         }
     }
 
-    return static_cast<double>(correctCount) / static_cast<double>(totalCount);
+    return (1.0 * correctCount) / (1.0 * totalCount);
 }
 
 std::vector<double> NeuralNetwork::getOutputValues() const {
