@@ -177,11 +177,11 @@ int main(int argc, char* argv[]) {
         // For these, you will need to add a command line flag
         // to select which method you'll use (nesterov, rmsprop, or adam)
 
-        double bestError = 10000;
         double error = nn.forwardPass(dataSet.getInstances()) / dataSet.getNumberInstances();
+        double bestError = error;
         double accuracy = nn.calculateAccuracy(dataSet.getInstances());
 
-        if (error < bestError) bestError = error;
+        //if (error < bestError) bestError = error;
         Log::info("  " + std::to_string(bestError) + " " + std::to_string(error) + " " + std::to_string(accuracy * 100.0));
         //std::cout << "  " << bestError << " " << error << " " << std::fixed << std::setprecision(5) << accuracy * 100.0 << std::endl;
 
@@ -290,10 +290,10 @@ int main(int argc, char* argv[]) {
             // At the end of each epoch, calculate the error over the entire
             // set of instances and print it out so we can see if we're decreasing
             // the overall error
-            error = nn.forwardPass(dataSet.getInstances()) / dataSet.getNumberInstances();
-            accuracy = nn.calculateAccuracy(dataSet.getInstances());
-            if (error < bestError) bestError = error;
-            Log::info("  " + std::to_string(bestError) + " " + std::to_string(error) + " " + std::to_string(accuracy * 100.0));
+            double err = nn.forwardPass(dataSet.getInstances()) / dataSet.getNumberInstances();
+            double acc = nn.calculateAccuracy(dataSet.getInstances());
+            if (err < bestError) bestError = err;
+            Log::info("  " + std::to_string(bestError) + " " + std::to_string(err) + " " + std::to_string(acc * 100.0));
             //std::cout << i << " " << bestError << " " << error << " " << std::fixed << std::setprecision(5) << accuracy * 100.0 << std::endl;
         }
 
