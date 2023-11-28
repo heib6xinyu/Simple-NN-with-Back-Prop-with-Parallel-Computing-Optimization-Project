@@ -49,14 +49,6 @@ public:
     static void copy(std::vector<double>& target, const std::vector<double>& source) {
         target = source;  // In C++, you can directly assign vectors to copy them
     }
-
-    static void print(const std::vector<double>& v) {
-        for (size_t i = 0; i < v.size(); ++i) {
-            if (i > 0) std::cout << ", ";
-            std::cout << v[i];
-        }
-        std::cout << std::endl;
-    }
 };
 
 #endif // VECTOR_H

@@ -25,16 +25,6 @@ bool vectorsCloseEnough(std::vector<double> v1, std::vector<double> v2) {
 }
 
 bool gradientsCloseEnough(std::vector<double> g1, std::vector<double> g2) {
-    //printf("G1: ");
-    //for (double g : g1) {
-    //    printf("%g ", g);
-    //}
-    //printf("\n");
-    //printf("G2: ");
-    //for (double g : g2) {
-    //    printf("%g ", g);
-    //}
-    //printf("\n");
     double relativeError = Vector::norm(Vector::subtractVector(g1, g2)) / std::max(Vector::norm(g1), Vector::norm(g2));
     
     if (relativeError >= 1e-4) {
@@ -199,7 +189,6 @@ void testXORNeuralNetwork() {
         Log::info("Passed testXORNeuralNetwork 1");
     } catch (const std::exception& e) {
         Log::fatal("Failed testXORNeuralNetwork on Neural Network 1");
-        //Log::fatal("Threw exception: " + (std::string) e.what());
         passed = false;
     }
 

@@ -14,7 +14,6 @@ NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenL
     : lossFunction(lossFunc), numberWeights(0) {
     // The number of layers in the neural network is 2 plus the number of hidden layers
     int totalLayers = hiddenLayerSizes.size() + 2;
-    //layers.reserve(totalLayers);
 
     Log::info("Creating a neural network with " + std::to_string(hiddenLayerSizes.size()) + " hidden layers.");
 
@@ -45,7 +44,6 @@ NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenL
 
         // Create and add nodes to the current layer
         std::vector<Node> currentLayer;
-        //currentLayer.reserve(layerSize);
         for (int j = 0; j < layerSize; ++j) {
             currentLayer.push_back(std::move(Node(layer, j, nodeType, activationType)));
         }
@@ -69,7 +67,6 @@ void NeuralNetwork::reset() {
 std::vector<double> NeuralNetwork::getWeights() const {
     std::vector<double> weights(numberWeights);
     int position = 0;
-    //for (std::vector<Node> layer : layers) {
     for (size_t i = 0; i < layers.size(); ++i) {
         for (size_t j = 0; j < layers[i].size(); ++j) {
             const Node& n = layers[i][j];
@@ -84,11 +81,6 @@ std::vector<double> NeuralNetwork::getWeights() const {
 }
 
 void NeuralNetwork::setWeights(std::vector<double>& newWeights) {
-    //printf("SetWeights: ");
-    //for(double x : newWeights) {
-    //    printf("%g ", x);
-    //}
-    //printf("\n");
     if (numberWeights != newWeights.size()) {
         throw std::runtime_error("Could not setWeights because the number of new weights: " + std::to_string(newWeights.size()) + " was not equal to the number of weights in the NeuralNetwork: " + std::to_string(numberWeights));
     }
@@ -102,11 +94,6 @@ void NeuralNetwork::setWeights(std::vector<double>& newWeights) {
             }
         }
     }
-    //printf("Weights: ");
-    //for(double x : getWeights()) {
-    //    printf("%g ", x);
-    //}
-    //printf("\n");
 }
 
 std::vector<double> NeuralNetwork::getDeltas() const {
@@ -191,9 +178,7 @@ double NeuralNetwork::forwardPass(const Instance& instance) {
 
     // 2. Call forward propagation on each node
     for (size_t i = 0; i < layers.size(); ++i) {
-    //for (auto& layer : layers) {
         for (size_t j = 0; j < layers[i].size(); ++j) {
-        //for (auto& node : layer) {
             layers[i][j].propagateForward();
         }
     }
@@ -278,7 +263,6 @@ double NeuralNetwork::forwardPass(const Instance& instance) {
 
         // Calculate softmax loss and delta for each output node
         for (int i = 0; i < layers[outputLayerIndex].size(); ++i) {
-        //for (Node& outputNode : layers[outputLayerIndex]) {
             double softmaxProb = std::exp(layers[outputLayerIndex][i].postActivationValue) / totalExpSum;
             layers[outputLayerIndex][i].delta = (i == expectedIndex) ? (softmaxProb - 1) : softmaxProb;
         }
@@ -312,7 +296,7 @@ double NeuralNetwork::calculateAccuracy(const std::vector<Instance>& instances) 
         forwardPass(instance);
         std::vector<double> output = getOutputValues();
 
-        double maxOutput = -std::numeric_limits<double>::infinity();
+        double maxOutput = std::numeric_limits<double>::min();
         int predictedIndex = -1;
         for (int i = 0; i < output.size(); ++i) {
             if (output[i] > maxOutput) {
@@ -360,20 +344,16 @@ std::vector<double> NeuralNetwork::getNumericGradient(const Instance& instance) 
         testWeights[i] = currentWeights[i] + H;
         setWeights(testWeights);
         double outputPlusH = forwardPass(instance);
-        //printf("OutputPlus: %g\n", outputPlusH-0.5);
 
         // Decrement weight by H
         testWeights[i] = currentWeights[i] - H;
         setWeights(testWeights);
         double outputMinusH = forwardPass(instance);
-        //printf("OutputMinus: %g\n", outputMinusH-0.5);
         // Calculate the gradient
         numericGradient[i] = (outputPlusH - outputMinusH) / (2 * H);
 
         // Reset the weight for the next iteration
-        //testWeights[i] = currentWeights[i];
-
-        //testWeights[i] = currentWeights[i];
+        testWeights[i] = currentWeights[i];
     }
 
     // Reset the weights to their original values
@@ -396,21 +376,19 @@ std::vector<double> NeuralNetwork::getNumericGradient(const std::vector<Instance
         testWeights[i] = currentWeights[i] + H;
         setWeights(testWeights);
         double outputPlusH = forwardPass(instances);
-        //printf("OutputPlus: %g\n", outputPlusH-1);
         
 
         // Decrement weight by H
         testWeights[i] = currentWeights[i] - H;
         setWeights(testWeights);
         double outputMinusH = forwardPass(instances);
-        //printf("OutputMinus: %g\n", outputMinusH-1);
         
 
         // Calculate the gradient
         numericGradient[i] = (outputPlusH - outputMinusH) / (2 * H);
 
         // Reset the weight for the next iteration
-        //testWeights[i] = currentWeights[i];
+        testWeights[i] = currentWeights[i];
     }
 
     // Reset the weights to their original values

@@ -14,9 +14,7 @@
 Node::Node(int layerValue, int numberValue, NodeType type, ActivationType actType)
     : layer(layerValue), number(numberValue), nodeType(type), activationType(actType),
     preActivationValue(0), postActivationValue(0), delta(0), activationDerivative(0),
-    bias(0), biasDelta(0) {
-    // Initialization logic here if needed
-}
+    bias(0), biasDelta(0) {}
 
 void Node::reset() {
     preActivationValue = 0;
@@ -40,15 +38,10 @@ void Node::addIncomingEdge(std::shared_ptr<Edge> incomingEdge) {
 }
 
 void Node::propagateForward() {
-    //for (Edge edge : inputEdges) {
-    //printf("PreAct0: %g\n", preActivationValue);
     for (size_t i = 0; i < inputEdges.size(); ++i) {
-        //printf("Edge: %s %g %g\n", inputEdges[i]->toString().c_str(), inputEdges[i]->weight, inputEdges[i]->inputNode->postActivationValue);
         preActivationValue += inputEdges[i]->weight * inputEdges[i]->inputNode->postActivationValue;
     }
-    //printf("PreAct1: %g\n", preActivationValue);
     preActivationValue += bias;
-    //printf("PreAct2: %g\n", preActivationValue);
 
     switch (activationType) {
     case ActivationType::LINEAR:
@@ -67,19 +60,16 @@ void Node::propagateForward() {
 
 void Node::applyLinear() {
     postActivationValue = preActivationValue;
-    //printf("PostAct: %g\n", postActivationValue);
     activationDerivative = 1;
 }
 
 void Node::applySigmoid() {
     postActivationValue = 1.0 / (1.0 + exp(-preActivationValue));
-    //printf("PostAct: %g\n", postActivationValue);
     activationDerivative = postActivationValue * (1 - postActivationValue);
 }
 
 void Node::applyTanh() {
     postActivationValue = tanh(preActivationValue);
-    //printf("PostAct: %g\n", postActivationValue);
     activationDerivative = 1 - (postActivationValue * postActivationValue);
 }
 
@@ -126,17 +116,9 @@ int Node::setWeights(int position, std::vector<double>& weights) {
     }
 
     for (size_t i = 0; i < outputEdges.size(); ++i) {
-        //printf("%s edge weight set to %g\n", outputEdges[i]->toString().c_str(), weights[position + weightCount]);
         outputEdges[i]->weight = weights[position + weightCount];
-        //printf("%s %g\n", outputEdges[i]->toString().c_str(), outputEdges[i]->weight);
         weightCount++;
     }
-    //for (std::shared_ptr<Edge>& edge : outputEdges) {
-    //    printf("Output Edge: %s %g\n", edge->toString().c_str(), edge->weight);
-    //}
-    //for (std::shared_ptr<Edge>& edge : inputEdges) {
-    //    printf("Input Edge: %s %g\n", edge->toString().c_str(), edge->weight);
-    //}
     return weightCount;
 }
 
@@ -154,7 +136,6 @@ void Node::applyDerivativeTanh() {
 
 void Node::propagateBackward() {
     double deltaPushBack = delta * activationDerivative;
-    //printf("Node: %s \tdeltaPushBack: %g \tdelta: %g \tactDeriv: %g\n", toString().c_str(), deltaPushBack, delta, activationDerivative);
     // Set the biasDelta to delta. Because it's an addition
     biasDelta += deltaPushBack;
 
@@ -190,7 +171,6 @@ std::string Node::toString() const {
 }
 
 std::string Node::toDetailedString() const {
-    //std::stringstream ss;
     std::string ss = "[Node - layer: " + std::to_string(layer) + ", number: " + std::to_string(number) + ", node type: "
         + std::to_string(static_cast<int>(nodeType)) + ", activation type: "
         + std::to_string(static_cast<int>(activationType)) + ", n input edges: "

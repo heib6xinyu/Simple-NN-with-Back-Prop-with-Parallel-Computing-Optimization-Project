@@ -16,12 +16,6 @@ enum class NodeType {
     OUTPUT
 };
 
-//enum class ActivationType {
-//    LINEAR,
-//    SIGMOID,
-//    TANH
-//};
-
 class Node {
 private:
     NodeType nodeType;

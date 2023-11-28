@@ -49,10 +49,16 @@ DataSet getDataset(std::string dataSetName) {
         std::vector<double> stdDevs = dataSet.getInputStandardDeviations();
 
         Log::info("data set means: ");
-        Vector::print(means);
+        for (double x : means) {
+            printf("%g ", x);
+        }
+        printf("\n");
 
         Log::info("data set standard deviations: ");
-        Vector::print(stdDevs);
+        for (double x : stdDevs) {
+            printf("%g ", x);
+        }
+        printf("\n");
 
         dataSet.normalize(means, stdDevs);
         return dataSet;
@@ -164,15 +170,14 @@ int main(int argc, char* argv[]) {
 
         nn.initializeRandomly(bias);
 
-        // TODO: For PA1-4 use this and implement nesterov momentum
         std::vector<double> velocity(nn.getNumberWeights());
         std::vector<double> velocityPrev(nn.getNumberWeights());
         std::vector<double> cache(nn.getNumberWeights());
         std::vector<double> m(nn.getNumberWeights());
 
-        // TODO: BONUS PA1-4: (1 point) implement the RMSprop
+        // implement the RMSprop
         // per-parameter adaptive learning rate method.
-        // TODO: BONUS PA1-4: (1 point) implement the Adam
+        // and implement the Adam
         // per-parameter adaptive learning rate method.
         // For these, you will need to add a command line flag
         // to select which method you'll use (nesterov, rmsprop, or adam)
@@ -181,13 +186,11 @@ int main(int argc, char* argv[]) {
         double bestError = error;
         double accuracy = nn.calculateAccuracy(dataSet.getInstances());
 
-        //if (error < bestError) bestError = error;
         Log::info("  " + std::to_string(bestError) + " " + std::to_string(error) + " " + std::to_string(accuracy * 100.0));
-        //std::cout << "  " << bestError << " " << error << " " << std::fixed << std::setprecision(5) << accuracy * 100.0 << std::endl;
 
         for (int i = 0; i < epochs; i++) {
             if (descentType == "stochastic") {
-                // TODO: PA1-3 you need to implement one epoch (pass through the
+                // implement one epoch (pass through the
                 // training data) for stochastic gradient descent
                 dataSet.shuffle();
                 for (int ins = 0; ins < dataSet.getNumberInstances(); ins++) {
@@ -219,7 +222,7 @@ int main(int argc, char* argv[]) {
                 }
             }
             else if (descentType == "minibatch") {
-                // TODO: PA1-3 you need to implement one epoch (pass through the
+                // implement one epoch (pass through the
                 // training data) for minibatch gradient descent
                 dataSet.shuffle();
                 for (int ins = 0; ins < dataSet.getNumberInstances(); ins += batchSize) {
@@ -251,7 +254,7 @@ int main(int argc, char* argv[]) {
                 }
             }
             else if (descentType == "batch") {
-                // TODO: PA1-3 you need to implement one epoch (pass through the training
+                // implement one epoch (pass through the training
                 // instances) for batch gradient descent
                 std::vector<Instance> instances = dataSet.getInstances();
                 std::vector<double> gradient = nn.getGradient(instances);
@@ -285,8 +288,6 @@ int main(int argc, char* argv[]) {
                 exit(1);
             }
 
-            // Log::info("weights: " + std::to_string(nn.getWeights()));
-
             // At the end of each epoch, calculate the error over the entire
             // set of instances and print it out so we can see if we're decreasing
             // the overall error
@@ -294,7 +295,6 @@ int main(int argc, char* argv[]) {
             double acc = nn.calculateAccuracy(dataSet.getInstances());
             if (err < bestError) bestError = err;
             Log::info("  " + std::to_string(bestError) + " " + std::to_string(err) + " " + std::to_string(acc * 100.0));
-            //std::cout << i << " " << bestError << " " << error << " " << std::fixed << std::setprecision(5) << accuracy * 100.0 << std::endl;
         }
 
     }
