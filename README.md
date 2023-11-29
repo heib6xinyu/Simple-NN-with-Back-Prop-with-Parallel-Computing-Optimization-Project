@@ -401,6 +401,23 @@ It's worth noting that while the accuracy is high, the loss not reducing to a le
 - Accuracy: Both models achieve high accuracy.
 - Loss: The TensorFlow model effectively minimizes the loss to zero, which is not the case with our model. This discrepancy in loss values, despite high accuracy, might indicate differences in how the models handle classification boundaries or manage the error margins.
 
+#### Runtime Comparison:
+The runtime comparison between our custom model and the TensorFlow model for two different datasets (Iris and Mushroom) shows some interesting differences in performance:
+
+1. **Iris Dataset**:
+   - **Our Model**: 0.972 seconds
+   - **TensorFlow Model**: 10.846 seconds
+
+   For the Iris dataset, our model is significantly faster than the TensorFlow model. This could be due to a number of factors such as the simplicity of our model, more efficient handling of smaller datasets, or less computational overhead compared to TensorFlow's more generalized and feature-rich framework.
+
+2. **Mushroom Dataset**:
+   - **Our Model**: 3 minutes 38.433 seconds
+   - **TensorFlow Model**: 22.143 seconds
+
+   For the Mushroom dataset, the situation is reversed, with our model taking substantially longer to run compared to TensorFlow. This difference could be due to several reasons:
+   - **Dataset Complexity**: The Mushroom dataset is more complex and larger in size, which could mean our model is less efficient at handling such datasets compared to TensorFlow.
+   - **Optimization and Scalability**: TensorFlow is highly optimized for handling larger and more complex datasets. Where our model lacks certain optimizations that become critical for larger datasets.
+   - **Parallelization and Hardware Utilization**: TensorFlow is optimized to make the best use of available hardware (like GPUs and multi-core CPUs) for parallel processing, which could be a contributing factor to its faster performance on more demanding tasks.
 
 
 ## Appendices
