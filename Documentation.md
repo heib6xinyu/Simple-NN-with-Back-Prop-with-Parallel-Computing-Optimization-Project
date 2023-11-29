@@ -367,8 +367,23 @@ The `Node` class in C++ represents a node in a neural network. It maintains list
 
 
 ### BenchMarking
-I will benchmark our neural network with tensorflow.
+I will build a neural network that have the same structure as mine, using tensorflow, and benchmark the two.
+For TensorFlow Model, check benchmark.py.
+For run result, check tensorflownn.txt and ourmodel.txt.
 
+#### TensorFlow Model Results:
+
+- The TensorFlow model shows impressive performance, achieving an accuracy of 100% very quickly and maintaining it throughout the training.
+- The loss drops to zero, indicating that the model has effectively learned to classify the data with no errors.
+#### Our Model Results:
+- Our model also achieves a high accuracy of approximately 100% in the third epoch.
+- However, the loss (0.313262) does not decrease to zero. This could be due to several factors, such as differences in the architecture, optimization algorithm, or the way the loss is calculated and reported.
+It's worth noting that while the accuracy is high, the loss not reducing to a level closer to zero as in the TensorFlow model might indicate some room for improvement.
+
+#### Benchmarking Insights:
+
+- Accuracy: Both models achieve high accuracy.
+- Loss: The TensorFlow model effectively minimizes the loss to zero, which is not the case with our model. This discrepancy in loss values, despite high accuracy, might indicate differences in how the models handle classification boundaries or manage the error margins.
 
 
 ## Appendices
