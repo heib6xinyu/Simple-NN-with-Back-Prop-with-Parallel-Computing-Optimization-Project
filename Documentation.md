@@ -378,6 +378,6 @@ This C++ implementation of the Neural Network System is an extension of the orig
 In its current form, the C++ version, we adds elements of parallel computing. This addition is part of the coursework in CSCI-739: Topics in Intelligent Systems—Machine Learning Systems Implementation, under the instruction of Professor Weijie Zhao (email: wjz@rit.edu) at Rochester Institute of Technology. The aim is to enhance the system's capabilities and explore the practical application of machine learning algorithms in a more complex computing environment.
 
 #### Contributors:
-Xinyu Hu (email: xh1165@rit.edu)
-Kevin Penkowski (email: kwp5892@rit.edu)
+- Xinyu Hu (email: xh1165@rit.edu)
+- Kevin Penkowski (email: kwp5892@rit.edu)
 
