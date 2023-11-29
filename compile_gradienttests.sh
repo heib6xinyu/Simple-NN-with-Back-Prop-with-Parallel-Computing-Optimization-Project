@@ -1,0 +1,1 @@
+g++ data/DataSet.cpp data/Instance.cpp network/*.cpp util/*.cpp GradientTests.cpp -o GradientTests -std=c++11

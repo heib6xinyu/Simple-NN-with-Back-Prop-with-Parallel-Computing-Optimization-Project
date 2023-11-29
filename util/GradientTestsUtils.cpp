@@ -1,4 +1,4 @@
-#include "PA12TestsUtils.h"
+#include "GradientTestsUtils.h"
 #include <vector>
 #include <cmath>
 #include <stdio.h>
@@ -11,7 +11,7 @@
 #include "../network/NeuralNetwork.h"
 #include "../data/Instance.h"
 #include "BasicTestsUtils.h"
-#include "PA11TestsUtils.h"
+#include "NNTestsUtils.h"
 #include <stdlib.h>
 
 

@@ -1,6 +1,6 @@
 #include "./data/DataSet.h"
 #include "./network/LossFunction.h"
-#include "./util/PA11TestsUtils.h"
+#include "./util/NNTestsUtils.h"
 
 int main(int argc, char* argv[]) {
     DataSet xorData = DataSet("xor data", "./datasets/xor.txt");

@@ -101,28 +101,28 @@ We have provided several shell scripts to compile different parts of the project
    ./compile_basictests.sh
    ```
 
-2. **Compile PA11 Tests**: To compile PA11 tests, use:
+2. **Compile NN Tests**: To compile NN tests, use:
 
    ```bash
-   ./compile_pa11tests.sh
+   ./compile_nntests.sh
    ```
 
-3. **Compile PA12 Tests**: For compiling PA12 tests, execute:
+3. **Compile Gradient Tests**: For compiling Gradient tests, execute:
 
    ```bash
-   ./compile_pa12tests.sh
+   ./compile_gradienttests.sh
    ```
 
-4. **Compile PA14 Gradient Descent**: If you want to compile the PA14 gradient descent part, run:
+4. **Compile Gradient Descent**: If you want to compile the gradient descent part, run:
 
    ```bash
-   ./compile_pa14gd.sh
+   ./compile_gd.sh
    ```
 
 5. **Compile All Tests**: To compile all tests at once, use:
 
    ```bash
-   ./compile_tests.sh
+   ./compile_all.sh
    ```
 
 Each script will compile the respective parts of the project and prepare them for execution.
@@ -137,22 +137,22 @@ After compilation, you can run the corresponding parts of the project to see the
    ./run_basictests.sh
    ```
 
-2. **Run PA11 Tests**:
+2. **Run NN Tests**:
 
    ```bash
-   ./run_pa11tests.sh
+   ./run_nntests.sh
    ```
 
-3. **Run PA12 Tests**:
+3. **Run Gradient Tests**:
 
    ```bash
-   ./run_pa12tests.sh
+   ./run_gradienttests.sh
    ```
 
-4. **Run PA14 Gradient Descent**:
+4. **Run Gradient Descent**:
 
    ```bash
-   ./run_pa14gd.sh
+   ./run_gd.sh
    ```
 
 Each script executes the compiled binaries and demonstrates the functionalities of the respective parts of the project. These scripts provide a hands-on way to observe the neural network’s behavior, training process, and the results of different configurations and optimizations.
@@ -164,13 +164,13 @@ To run the neural network gradient descent with specific parameters, our program
 #### Command Format
 
 ```bash
-./PA14GD <data set> <gradient type> <batch size> <loss function> <epochs> <bias> <learning rate> <mu> <adaptive technique> <decay rate> <epsilon> <beta1> <beta2> <layer sizes...>
+./GradientDescent <data set> <gradient type> <batch size> <loss function> <epochs> <bias> <learning rate> <mu> <adaptive technique> <decay rate> <epsilon> <beta1> <beta2> <layer sizes...>
 ```
 
 #### Example Usage
 
 ```bash
-./PA14GD mushroom minibatch 20 softmax 100 0.1 0.01 0.9 adam 0.96 0.0000001 0.9 0.999 10 10
+./GradientDescent mushroom minibatch 20 softmax 100 0.1 0.01 0.9 adam 0.96 0.0000001 0.9 0.999 10 10
 ```
 
 This command runs gradient descent on the mushroom dataset with the following configuration:
@@ -240,7 +240,7 @@ Each part of the codebase plays a pivotal role in the functioning of the neural 
 
 - **Test Scripts**: Includes functions for conducting various tests on the neural network to ensure its correctness and efficiency.
   
-- **Gradient Descent Scripts (`PA14GD.cpp`)**: These scripts integrate all the components mentioned above. They implement the gradient descent algorithm and orchestrate the training process of the neural network, using various parameters and configurations specified by the user.
+- **Gradient Descent Scripts (`GradientDescent.cpp`)**: These scripts integrate all the components mentioned above. They implement the gradient descent algorithm and orchestrate the training process of the neural network, using various parameters and configurations specified by the user.
   
 ### Function Descriptions
 #### DataSet Class

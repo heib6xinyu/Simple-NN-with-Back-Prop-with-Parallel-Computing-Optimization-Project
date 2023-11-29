@@ -17,7 +17,7 @@ void helpMessage() {
     Log::info("\t\tdata set can be: 'and', 'or' or 'xor', 'iris' or 'mushroom'");
     Log::info("\t\tgradient descent type can be: 'stochastic', 'minibatch' or 'batch'");
     Log::info("\t\tbatch size should be > 0. Will be ignored for stochastic or batch gradient descent");
-    Log::info("\t\tloss function can be: 'l1_norm', 'l2_norm', 'svm' or 'softmax'");
+    Log::info("\t\tloss function can be: 'svm' or 'softmax'");
     Log::info("\t\tepochs is an integer > 0");
     Log::info("\t\tbias is a double");
     Log::info("\t\tlearning rate is a double usually small and > 0");
@@ -125,15 +125,7 @@ int main(int argc, char* argv[]) {
     int outputLayerSize = getOutputLayerSize(dataSetName, dataSet);
 
     LossFunction lossFunction = LossFunction::NONE;
-    if (lossFunctionName == "l1_norm") {
-        Log::info("Using an L1_NORM loss function.");
-        lossFunction = LossFunction::L1_NORM;
-    }
-    else if (lossFunctionName == "l2_norm") {
-        Log::info("Using an L2_NORM loss function.");
-        lossFunction = LossFunction::L2_NORM;
-    }
-    else if (lossFunctionName == "svm") {
+    if (lossFunctionName == "svm") {
         Log::info("Using an SVM loss function.");
         lossFunction = LossFunction::SVM;
     }
