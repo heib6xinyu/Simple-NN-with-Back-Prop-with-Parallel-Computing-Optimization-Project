@@ -241,6 +241,57 @@ Each part of the codebase plays a pivotal role in the functioning of the neural 
 - **Gradient Descent Scripts (`PA14GD.cpp`)**: These scripts integrate all the components mentioned above. They implement the gradient descent algorithm and orchestrate the training process of the neural network, using various parameters and configurations specified by the user.
   
 ### Function Descriptions
+#### DataSet Class
+
+##### Constructor
+- `DataSet::DataSet(const std::string& name, const std::string& filename)`: Constructs a new `DataSet` object using a specified file. It initializes the `DataSet` with a `name` and loads data from `filename`, parsing each line to create `Instance` objects.
+
+##### Data Normalization and Processing
+- `std::vector<double> DataSet::getInputMeans()`: Calculates and returns the mean of each input column in the data set.
+- `std::vector<double> DataSet::getInputStandardDeviations()`: Computes the standard deviations for each input column.
+- `void DataSet::normalize(const std::vector<double>& inputMeans, const std::vector<double>& inputStandardDeviations)`: Normalizes the data set by subtracting the mean and dividing by the standard deviation for each input.
+
+##### Data Retrieval and Management
+- `std::string DataSet::getName() const`: Returns the name of the data set.
+- `size_t DataSet::getNumberInstances() const`: Provides the total number of instances in the data set.
+- `int DataSet::getNumberInputs() const`: Returns the number of inputs per instance.
+- `int DataSet::getNumberOutputs() const`: Indicates the number of outputs per instance.
+- `int DataSet::getNumberClasses() const`: Retrieves the number of unique classes in the data set.
+- `void DataSet::shuffle()`: Randomizes the order of instances in the data set.
+- `Instance DataSet::getInstance(int position) const`: Retrieves a specific instance based on its position.
+- `std::vector<Instance> DataSet::getInstances(int position, int numberOfInstances) const`: Obtains a subset of instances from a specified position for a given number of instances.
+- `const std::vector<Instance>& DataSet::getInstances() const`: Returns all instances in the data set.
+
+#### Instance Class 
+
+##### Constructor
+- `Instance::Instance(const std::vector<double>& expectedOutputs, const std::vector<double>& inputs)`: Creates an `Instance` object with given expected outputs and inputs. The constructor initializes the `Instance` with vectors of expected outputs and inputs.
+
+##### Comparison Functions
+- `bool Instance::equals(const std::vector<double>& otherExpectedOutputs, const std::vector<double>& otherInputs) const`: Compares this `Instance` to another set of expected outputs and inputs to determine if they are the same. It returns `true` if the provided expected outputs and inputs are the same as those in the `Instance`.
+- `bool Instance::equals(const Instance& other) const`: Compares this `Instance` to another `Instance` object. It returns `true` if the expected outputs and inputs in both instances are the same.
+
+##### String Representation
+- `std::string Instance::toString() const`: Generates a nicely readable string from this `Instance`. It constructs a string representation showing the expected outputs and inputs of the `Instance`.
+
+#### Edge Class
+
+
+##### Constructor
+- `Edge::Edge(Node* inputNode, Node* outputNode)`: Constructs a new edge in the neural network between the specified input and output nodes. It initializes the weight and delta to 0 and registers the edge with the input and output nodes.
+
+##### Backward Propagation
+- `void Edge::propagateBackward(double delta)`: Takes an incoming delta (error) from the output node and propagates it backward to the input node. It updates the `weightDelta` by multiplying the delta with the post-activation value of the input node and accumulates the deltas in the input node.
+
+##### Weight Management
+- `void Edge::setWeight(double new_weight)`: Sets a new weight for the edge.
+- `double Edge::getWeight()`: Returns the current weight of the edge.
+
+##### Equality Check
+- `bool Edge::equals(Edge other) const`: Checks if two edges are equal by comparing their input and output nodes. Returns `true` if both the input and output nodes of the edges are the same.
+
+##### String Representation
+- `std::string Edge::toString()`: Generates a readable string representation of the edge, detailing its input and output nodes.
 
 
 ### Case Studies
