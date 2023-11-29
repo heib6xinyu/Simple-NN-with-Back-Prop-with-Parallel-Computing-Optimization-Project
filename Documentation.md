@@ -196,48 +196,63 @@ This command demonstrates how to run the neural network with a specific set of h
 ## Code Documentation
 
 ### Code Structure
-Overview of the codebase structure and explanation of key directories and files.
+
+Our Neural Network project is organized into several key components, each residing in its own directory and serving a specific function in the system. Here's an overview of the project's code structure:
+
+#### 1. Data Folder
+
+This folder contains the core data handling components of our system.
+
+#### 2. Datasets Folder
+
+- **Datasets Directory**: This directory contains the actual datasets used by the neural network, such as `iris.data` and `agaricus-lepiota.data`. These datasets are utilized by the `DataSet` class for training and testing the neural network.
+
+#### 3. Network Folder
+
+This folder encompasses the components that constitute the neural network.
+
+#### 4. Util Folder
+
+This folder contains utility functions and classes that support various operations of the neural network.
+
+
+#### 5. Gradient Descent Scripts
+
+Each part of the codebase plays a pivotal role in the functioning of the neural network, from data handling to network construction, training, and utility support. This modular approach not only organizes the code effectively but also enhances maintainability and scalability.
 
 ### Modules and Classes
-Description of major classes and modules, their functions, and interactions.
+- **`Instance.cpp` and `Instance.h`**: These files define the `Instance` class, responsible for representing individual data instances or samples. This class includes functionalities for handling input data, including one-hot encoding and managing data attributes.
 
+- **`DataSet.cpp` and `DataSet.h`**: These files define the `DataSet` class, which works in conjunction with the `Instance` class. The `DataSet` class is responsible for processing and storing a collection of instances, handling tasks such as calculating means, standard deviations, and other dataset-level operations.
+- **`Edge.cpp` and `Edge.h`**: Define the connections or 'edges' between nodes in the neural network.
+
+- **`Node.cpp` and `Node.h`**: Represent the nodes or 'neurons' of the network.
+
+- **`NeuralNetwork.cpp` and `NeuralNetwork.h`**: The core file that integrates nodes and edges to form the complete neural network.
+
+- **Supporting Definitions**: Includes definitions of `ActivationType`, `LossFunction`, and `NodeType`, which are essential for specifying the behavior and characteristics of the neural network.
+
+- **`Log.cpp` and `Log.h`**: Implement logging functionalities, crucial for monitoring and debugging the system.
+
+- **`Vector.cpp` and `Vector.h`**: Provide vector-related utility functions, useful in various mathematical and data processing operations.
+
+- **Test Scripts**: Includes functions for conducting various tests on the neural network to ensure its correctness and efficiency.
+  
+- **Gradient Descent Scripts (`PA14GD.cpp`)**: These scripts integrate all the components mentioned above. They implement the gradient descent algorithm and orchestrate the training process of the neural network, using various parameters and configurations specified by the user.
+  
 ### Function Descriptions
-Details of key functions including parameters, return values, and examples.
 
-## Neural Network Details
-
-### Architecture
-Description of the neural network architecture(s), layers, activation functions, loss functions, etc.
-
-### Training Process
-Details of the training process, optimization algorithms, batch size, epochs, etc.
-
-### Data Handling
-Explanation of data processing, loading, and usage in the model.
-
-## Examples and Tutorials
 
 ### Case Studies
 Detailed examples or tutorials for specific tasks or datasets.
 
-### Jupyter Notebooks
-Link to Jupyter Notebooks demonstrating the project's practical usage.
 
-## Contributing
-
-### Guidelines
-Guidelines for contributing to the project.
-
-## License
-Specify the license under which the project is released.
 
 ## Contact Information
 
 ### Authors
 List of authors and maintainers with contact information.
 
-### Support
-Information on where and how to get support (e.g., issue tracker, discussion forum).
 
 ## Appendices
 
