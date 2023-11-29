@@ -13,7 +13,8 @@ In the realm of algorithm optimization, we have implemented commonly used techni
 ## Rubric Points
 Cross-platform compilation - +2pts.
 Illegal Input Handling - +2pts.
-Non-trivial optimization/techniques - +5 pts.
+Non-trivial optimization/techniques - +5 pts. 
+   (Stochastic, Minibatch, batch, adam, rmsprop)
 Documentation - +2pts.
 Benchmarking with baselines - +5pts.
 
