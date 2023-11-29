@@ -390,9 +390,9 @@ It's worth noting that while the accuracy is high, the loss not reducing to a le
 ## Appendices
 
 ### Acknowledgments and References
-This C++ implementation of the Neural Network System is an extension of the original Java version developed by Professor Travis Desell (email: tjdvse@rit.edu) at Rochester Institute of Technology. I was introduced to the foundational structure of this system as a student in the DSCI640 Neural Networks course and participated in filling in the structure. The system was initially built for educational purposes, focusing on the basics of neural networks.
+This C++ implementation of the Neural Network System is an extension of the original Java version developed as a part of DSCI640 Neural Networks with Professor Travis Desell (email: tjdvse@rit.edu) at Rochester Institute of Technology. I was introduced to the foundational structure of this system as a student in this class. The system was initially built for educational purposes, focusing on the basics of neural networks.
 
-In its current form, the C++ version, we adds elements of parallel computing. This addition is part of the coursework in CSCI-739: Topics in Intelligent Systems—Machine Learning Systems Implementation, under the instruction of Professor Weijie Zhao (email: wjz@rit.edu) at Rochester Institute of Technology. The aim is to enhance the system's capabilities and explore the practical application of machine learning algorithms in a more complex computing environment.
+In its current form, the C++ builds off of the previous system to full develop a Deep Learning Framework. This addition is part of the coursework in CSCI-739: Topics in Intelligent Systems—Machine Learning Systems Implementation, under the instruction of Professor Weijie Zhao (email: wjz@rit.edu) at Rochester Institute of Technology. The aim is to enhance the system's capabilities and explore the practical application of machine learning algorithms in a more complex computing environment.
 
 #### Contributors:
 - Xinyu Hu (email: xh1165@rit.edu)

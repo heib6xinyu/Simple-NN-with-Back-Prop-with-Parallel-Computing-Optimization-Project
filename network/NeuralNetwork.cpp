@@ -114,7 +114,7 @@ std::vector<double> NeuralNetwork::getDeltas() const {
     return deltas;
 }
 
-void NeuralNetwork::connectFully() { // TODO: TEST!!!
+void NeuralNetwork::connectFully() {
     for (size_t layer = 0; layer < layers.size() - 1; ++layer) {
         for (Node& inputNode : layers[layer]) {
             for (Node& outputNode : layers[layer + 1]) {
