@@ -10,11 +10,12 @@ Understanding the importance of data in machine learning, our project includes a
 
 In the realm of algorithm optimization, we have implemented commonly used techniques such as RMSprop, Nesterov Momentum, and Adam. These algorithms optimize the training process, ensuring faster convergence and improved performance of the neural networks.
 
-Lastly, we have focused on optimizing neural network performance, including the use of OpenMP pragmas for parallel computing techniques.
-
-
-
-
+## Rubric Points
+Cross-platform compilation - +2pts.
+Illegal Input Handling - +2pts.
+Non-trivial optimization/techniques - +5 pts.
+Documentation - +2pts.
+Benchmarking with baselines - +5pts.
 
 ## Background
 The data we used in this project is iris.data and agaricus-lepiota.data.
