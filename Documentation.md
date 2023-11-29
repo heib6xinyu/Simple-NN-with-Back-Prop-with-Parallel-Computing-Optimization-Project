@@ -374,8 +374,8 @@ For run result, check tensorflownn_mushroom.txt and ourmodel_mushroom.txt, tenso
 
 #### TensorFlow Model Results for iris dataset:
 
-- The TensorFlow model shows impressive performance, achieving an accuracy of 100% at the 7th epoch with slite fluctuation.
-- The loss drops very close to 0 with slite fluctuation, indicating that the model has effectively learned to classify the data with little errors.
+- The TensorFlow model shows impressive performance, achieving an accuracy of 100% at the 7th epoch with slight fluctuation.
+- The loss drops very close to 0 with slight fluctuation, indicating that the model has effectively learned to classify the data with little errors.
 #### Our Model Results:
 - Our model also achieves a high accuracy, it passes 95% in the 16th epoch, and stablized at approximately 99.33% in the 36th epoch.
 - However, the loss (0.558782) does not decrease to zero. This could be due to several factors, such as differences in the architecture, optimization algorithm, or the way the loss is calculated and reported.

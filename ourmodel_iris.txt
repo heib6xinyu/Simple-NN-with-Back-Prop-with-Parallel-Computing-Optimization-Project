@@ -1,5 +1,5 @@
 heib6@LAPTOP-N5JRCB72 MINGW64 /d/course/739/Final Project (main)
-$ ./PA14GD iris minibatch 20 softmax 100 0.1 0.01 0.9 adam 0.96 0.0000001 0.9 0.999 10 10
+$ ./GradientDescent iris minibatch 20 softmax 100 0.1 0.01 0.9 adam 0.96 0.0000001 0.9 0.999 10 10
 [INFO   ] data set means:
 5.84333 3.054 3.75867 1.19867
 [INFO   ] data set standard deviations:
