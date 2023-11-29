@@ -80,7 +80,7 @@ The data we used in this project is iris.data and agaricus-lepiota.data.
 
 After completing these steps, you should be able to compile C++ programs using `g++` in your terminal or command prompt.
 ### Installation Guide
-1. Clone the repository: `git clone <repo-url>`
+1. Clone the repository: `git clone https://github.com/heib6xinyu/Simple-NN-with-Back-Prop-with-Parallel-Computing-Optimization-Project.git`
 
 
 ## Usage
@@ -365,21 +365,19 @@ The `Node` class in C++ represents a node in a neural network. It maintains list
 
 
 
-### Case Studies
-Detailed examples or tutorials for specific tasks or datasets.
+### BenchMarking
+I will benchmark our neural network with tensorflow.
 
-
-
-## Contact Information
-
-### Authors
-List of authors and maintainers with contact information.
 
 
 ## Appendices
 
-### References
-List of references and influential sources.
+### Acknowledgments and References
+This C++ implementation of the Neural Network System is an extension of the original Java version developed by Professor Travis Desell (email: tjdvse@rit.edu) at Rochester Institute of Technology. I was introduced to the foundational structure of this system as a student in the DSCI640 Neural Networks course and participated in filling in the structure. The system was initially built for educational purposes, focusing on the basics of neural networks.
 
-### Acknowledgments
-Acknowledgments to contributors, sponsors, etc.
+In its current form, the C++ version, we adds elements of parallel computing. This addition is part of the coursework in CSCI-739: Topics in Intelligent Systems—Machine Learning Systems Implementation, under the instruction of Professor Weijie Zhao (email: wjz@rit.edu) at Rochester Institute of Technology. The aim is to enhance the system's capabilities and explore the practical application of machine learning algorithms in a more complex computing environment.
+
+#### Contributors:
+Xinyu Hu (email: xh1165@rit.edu)
+Kevin Penkowski (email: kwp5892@rit.edu)
+
