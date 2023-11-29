@@ -293,6 +293,77 @@ Each part of the codebase plays a pivotal role in the functioning of the neural 
 ##### String Representation
 - `std::string Edge::toString()`: Generates a readable string representation of the edge, detailing its input and output nodes.
 
+#### Node Class 
+
+The `Node` class in C++ represents a node in a neural network. It maintains lists of input and output edges, its value, layer information, and type (input, hidden, or output). Below are the function descriptions adapted from the Java version to the C++ implementation:
+
+##### Constructor
+- `Node::Node(int layerValue, int numberValue, NodeType type, ActivationType actType)`: Creates a new node at a given layer in the network, specifying its type (input, hidden, or output) and the activation function to use.
+
+##### Resetting Node State
+- `void Node::reset()`: Resets the node's values and deltas needed for each forward and backward pass. Also resets the deltas for outgoing edges.
+
+##### Edge Management
+- `void Node::addOutgoingEdge(std::shared_ptr<Edge> outgoingEdge)`: Adds an outgoing edge to this node.
+- `void Node::addIncomingEdge(std::shared_ptr<Edge> incomingEdge)`: Adds an incoming edge to this node.
+
+##### Forward Propagation
+- `void Node::propagateForward()`: Propagates the node's post-activation value to all its output nodes by applying the appropriate activation function.
+
+##### Activation Functions
+- `void Node::applyLinear()`: Applies the linear activation function to this node.
+- `void Node::applySigmoid()`: Applies the sigmoid activation function to this node.
+- `void Node::applyTanh()`: Applies the tanh activation function to this node.
+
+##### Backward Propagation
+- `void Node::propagateBackward()`: Propagates the delta/error back from this node to its incoming edges.
+
+##### Weight Initialization
+- `void Node::initializeWeightsAndBias(double newBias)`: Sets the node's bias and randomly initializes each incoming edge weight.
+
+##### Weight and Delta Management
+- `int Node::getWeights(int position, std::vector<double>& weights) const`: Gets the weights of this node and its outgoing edges.
+- `int Node::getDeltas(int position, std::vector<double>& deltas)`: Gets the deltas of this node and its outgoing edges.
+- `int Node::setWeights(int position, std::vector<double>& weights)`: Sets the weights of this node and its outgoing edges.
+
+##### Additional Functions
+- `std::string Node::toString() const`: Returns a concise string representation of the node.
+- `std::string Node::toDetailedString() const`: Returns a detailed string representation of the node.
+
+#### NeuralNetwork Class 
+
+##### Constructor
+- `NeuralNetwork::NeuralNetwork(int inputLayerSize, const std::vector<int>& hiddenLayerSizes, int outputLayerSize, LossFunction lossFunc)`: Constructs a neural network with specified sizes for the input layer, hidden layers, and output layer, along with a chosen loss function.
+
+##### Weight Management
+- `int NeuralNetwork::getNumberWeights() const`: Returns the total number of weights (including biases) in the neural network.
+- `void NeuralNetwork::setWeights(std::vector<double>& newWeights)`: Sets the weights of the network to the values provided in `newWeights`.
+- `std::vector<double> NeuralNetwork::getWeights() const`: Returns a vector containing all the weights of the network.
+- `std::vector<double> NeuralNetwork::getDeltas() const`: Obtains the deltas (gradients) for all the weights in the network.
+
+##### Network Configuration
+- `void NeuralNetwork::connectFully()`: Fully connects all nodes in each layer to all nodes in the subsequent layer.
+- `void NeuralNetwork::connectNodes(int inputLayer, int inputNumber, int outputLayer, int outputNumber)`: Connects a specific node in one layer to a specific node in another layer.
+
+##### Initialization
+- `void NeuralNetwork::initializeRandomly(double bias)`: Initializes the weights of the network randomly using a normal distribution and sets the biases of the nodes.
+
+##### Forward and Backward Propagation
+- `double NeuralNetwork::forwardPass(const Instance& instance)`: Performs a forward pass through the network using the provided instance.
+- `double NeuralNetwork::forwardPass(const std::vector<Instance>& instances)`: Processes multiple instances through the network and returns the sum of their outputs.
+- `void NeuralNetwork::backwardPass()`: Conducts a backward pass through the network, updating the deltas based on the error.
+
+##### Accuracy and Output
+- `double NeuralNetwork::calculateAccuracy(const std::vector<Instance>& instances)`: Calculates the accuracy of the network on a set of instances.
+- `std::vector<double> NeuralNetwork::getOutputValues() const`: Retrieves the output values from the output layer of the network.
+
+##### Gradient Computation
+- `std::vector<double> NeuralNetwork::getNumericGradient(const Instance& instance)`: Calculates the numerical gradient for a single instance.
+- `std::vector<double> NeuralNetwork::getNumericGradient(const std::vector<Instance>& instances)`: Computes the numerical gradient for a set of instances.
+- `std::vector<double> NeuralNetwork::getGradient(const Instance& instance)`: Gets the gradient of the network for a given instance using backpropagation.
+- `std::vector<double> NeuralNetwork::getGradient(const std::vector<Instance>& instances)`: Obtains the gradient for a list of instances, summing up individual gradients.
+
+
 
 ### Case Studies
 Detailed examples or tutorials for specific tasks or datasets.
