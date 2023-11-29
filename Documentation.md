@@ -11,12 +11,13 @@ Understanding the importance of data in machine learning, our project includes a
 In the realm of algorithm optimization, we have implemented commonly used techniques such as RMSprop, Nesterov Momentum, and Adam. These algorithms optimize the training process, ensuring faster convergence and improved performance of the neural networks.
 
 ## Rubric Points
-Cross-platform compilation - +2pts.
-Illegal Input Handling - +2pts.
-Non-trivial optimization/techniques - +5 pts. 
-   (Stochastic, Minibatch, batch, adam, rmsprop)
-Documentation - +2pts.
-Benchmarking with baselines - +5pts.
+- Cross-platform compilation - +2pts.
+- Illegal Input Handling - +2pts.
+- Non-trivial optimization/techniques - +6 pts.
+   (Stochastic, Minibatch, batch, adam, rmsprop, Nesterov Momentum)
+- Documentation - +2pts.
+- Benchmarking with baselines - +5pts.
+
 
 ## Background
 The data we used in this project is iris.data and agaricus-lepiota.data.
