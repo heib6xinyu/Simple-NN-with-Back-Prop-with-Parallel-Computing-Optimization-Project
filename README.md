@@ -201,7 +201,7 @@ This command demonstrates how to run the neural network with a specific set of h
 ### Code Structure
 
 Our Neural Network project is organized into several key components, each residing in its own directory and serving a specific function in the system. Here's an overview of the project's code structure:
-[My PDF Document](/ProjectStructure.pdf)
+[Project Structure](/ProjectStructure.pdf)
 
 #### 1. Data Folder
 
